@@ -13,11 +13,11 @@ public class Main {
 		escalonadores.add(SO.Escalonador.SHORTEST_JOB_FIRST);
 		escalonadores.add(SO.Escalonador.SHORTEST_REMANING_TIME_FIRST);
 		escalonadores.add(SO.Escalonador.ROUND_ROBIN_QUANTUM_5);
-		
+		String arq = "C:\\Users\\bruno\\Documents\\GitHub\\EP1 SO\\EP01-SO\\entradas\\entrada1.txt";
 		for(Escalonador esc : escalonadores) {
 			SO so = new SeuSO();
 			so.defineEscalonador(esc);
-			so.leArquivoEntrada(args[0]);
+			so.leArquivoEntrada(arq);
 			so.simula();
 		}
 	}

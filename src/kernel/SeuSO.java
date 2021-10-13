@@ -98,6 +98,6 @@ public class SeuSO extends SO {
 
 	@Override
 	public void defineEscalonador(Escalonador e) {
-		// TODO Auto-generated method stub
+
 	}
 }
