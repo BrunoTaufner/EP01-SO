@@ -7,5 +7,5 @@ public class PCB {
 	public Estado estado = Estado.NOVO;
 	public int[] registradores = new int[5];
 	public int contadorDePrograma;
-	public Operacao[] codigo;
+	//public Operacao[] codigo;
 }
