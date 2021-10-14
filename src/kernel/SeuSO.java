@@ -1,4 +1,5 @@
 package kernel;
+import java.util.HashMap;
 import java.util.List;
 
 import operacoes.Operacao;
@@ -38,7 +39,8 @@ public class SeuSO extends SO {
 
 	@Override
 	protected boolean temTarefasPendentes() {
-		// TODO Auto-generated method stub
+		Operacao codigo[] = getCodigo();
+
 		return false;
 	}
 
