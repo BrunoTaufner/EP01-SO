@@ -1,17 +1,35 @@
 package kernel;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
+import escalonadores.Escalona;
+import operacoes.Carrega;
 import operacoes.Operacao;
 import operacoes.OperacaoES;
+import operacoes.Soma;
+
 
 public class SeuSO extends SO {
+
+	Escalonador esc;
+	Queue<PCB> processos = new LinkedList<>();
+	Escalona escalona = new Escalona();
+	int idProcesso = 0;
 
 	@Override
 	// ATENCÃO: cria o processo mas o mesmo 
 	// só estará "pronto" no próximo ciclo
 	protected void criaProcesso(Operacao[] codigo) {
-		// TODO Auto-generated method stub
+
+		PCB proc = new PCB ();
+		proc.codigo = codigo;
+		proc.contadorCiclos = getContadorCiclos();
+		proc.idProcesso = idProcessoNovo();
+		processos.add(proc);
+		escalona.addFilaTarefas(proc);
+
 	}
 
 	@Override
@@ -22,7 +40,7 @@ public class SeuSO extends SO {
 	@Override
 	// Assuma que 0 <= idDispositivo <= 4
 	protected OperacaoES proximaOperacaoES(int idDispositivo) {
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -34,7 +52,11 @@ public class SeuSO extends SO {
 
 	@Override
 	protected void executaCicloKernel() {
-		// TODO Auto-generated method stub
+		if(processos.peek().estado.equals(PCB.Estado.TERMINADO)) {
+			escalona.addListaTerminados(processos.peek());
+			processos.poll();
+		}
+
 	}
 
 	@Override
@@ -46,32 +68,55 @@ public class SeuSO extends SO {
 
 	@Override
 	protected Integer idProcessoNovo() {
-		// TODO Auto-generated method stub
-		return null;
+		idProcesso++;
+		return idProcesso-1;
 	}
 
 	@Override
 	protected List<Integer> idProcessosProntos() {
-		// TODO Auto-generated method stub
-		return null;
+		List<Integer> id_ProcessosProntos = new LinkedList<>();
+		Queue<PCB> tarefas = escalona.getTarefas();
+		for(PCB processo : tarefas) {
+			if(processo.estado.equals(PCB.Estado.PRONTO)){
+				id_ProcessosProntos.add(processo.idProcesso);
+			}
+		}
+		return id_ProcessosProntos;
 	}
 
 	@Override
 	protected Integer idProcessoExecutando() {
-		// TODO Auto-generated method stub
-		return null;
+		Queue<PCB> tarefas = escalona.getTarefas();
+		for(PCB processo : tarefas) {
+			if(processo.estado.equals(PCB.Estado.EXECUTANDO)){
+				return processo.idProcesso;
+			}
+		}
+		return -1;
 	}
 
 	@Override
 	protected List<Integer> idProcessosEsperando() {
-		// TODO Auto-generated method stub
-		return null;
+		List<Integer> id_ProcessosEsperando = new LinkedList<>();
+		Queue<PCB> tarefas = escalona.getTarefas();
+		for(PCB processo : tarefas) {
+			if(processo.estado.equals(PCB.Estado.ESPERANDO)){
+				id_ProcessosEsperando.add(processo.idProcesso);
+			}
+		}
+		return id_ProcessosEsperando;
 	}
 
 	@Override
 	protected List<Integer> idProcessosTerminados() {
-		// TODO Auto-generated method stub
-		return null;
+		List<Integer> id_ProcessosTerminados = new LinkedList<>();
+		Queue<PCB> tarefas = escalona.getTarefas();
+		for(PCB processo : tarefas) {
+			if(processo.estado.equals(PCB.Estado.TERMINADO)){
+				id_ProcessosTerminados.add(processo.idProcesso);
+			}
+		}
+		return id_ProcessosTerminados;
 	}
 
 	@Override
@@ -100,6 +145,10 @@ public class SeuSO extends SO {
 
 	@Override
 	public void defineEscalonador(Escalonador e) {
+		this.esc = e;
+	}
 
+	public Escalonador getEsc() {
+		return esc;
 	}
 }

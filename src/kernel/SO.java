@@ -113,7 +113,7 @@ public abstract class SO {
 			for (int j = 0; j < nOperacoes; j++) {
 				int codOp = in.nextInt();
 
-				if (codOp == 1) { //Carrega registrador com número de ciclos?
+				if (codOp == 1) { //Código do dispositivo e número de ciclos
 					codigo[j] = new OperacaoES(in.nextInt(), in.nextInt());
 				} else if (codOp == 2) { //Carrega valor em um certo registrador
 					codigo[j] = new Carrega(in.nextInt(), in.nextInt());
@@ -135,6 +135,11 @@ public abstract class SO {
 	public Operacao[] getCodigo() {
 		return novosProcessos.get(contadorCiclos);
 	}
+
+	public int getContadorCiclos(){
+		return contadorCiclos;
+	}
+
 	protected abstract void criaProcesso(Operacao[] codigo);
 
 	protected abstract void trocaContexto(PCB pcbAtual, PCB pcbProximo);
