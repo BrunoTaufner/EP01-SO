@@ -100,6 +100,7 @@ public abstract class SO {
 			if (op != null && op.ciclos > 0)
 				op.ciclos--;
 		}
+
 	}
 
 	public void leArquivoEntrada(String arq) throws FileNotFoundException {
@@ -133,12 +134,12 @@ public abstract class SO {
 		}
 	}
 
-	public Operacao[] getCodigo() {
-		return novosProcessos.get(contadorCiclos);
-	}
-
 	public int getContadorCiclos(){
 		return contadorCiclos;
+	}
+
+	public void incrementaContadorCiclos(){
+		(this.contadorCiclos)++;
 	}
 
 	protected abstract void criaProcesso(Operacao[] codigo);

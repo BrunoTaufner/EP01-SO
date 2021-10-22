@@ -1,8 +1,11 @@
 package kernel;
 import operacoes.Operacao;
+import operacoes.OperacaoES;
 
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 public class PCB implements Comparable<PCB> {
 
@@ -18,6 +21,9 @@ public class PCB implements Comparable<PCB> {
 	public int[] registradores = new int[5];
 	public int contadorDePrograma = 0;
 	public Operacao[] codigo;
+	Queue<Operacao> opCarregaSoma = new LinkedList<>();
+	List<OperacaoES> opES = new LinkedList<>();
+
 	public int proxChuteTamBurstCPU; //GUSTAVO COLOCOU ESSE TROÇO AQUI, PARA O ESCALONADOR LÁ, ESQUECI O NOME
 	public int contadorBurst = 0;
 	public int contadorCiclos = 0; //Para Round Robin

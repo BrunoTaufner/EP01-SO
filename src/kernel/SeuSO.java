@@ -17,9 +17,8 @@ public class SeuSO extends SO {
 	Queue<PCB> processos = new LinkedList<>();
 	PCB processo_atual;
 	Escalona escalona = new Escalona();
-	int i_opr = 0;
 	int idProcesso = 0;
-	List<Queue<Operacao>> operacoes = new LinkedList<>();
+
 
 	@Override
 	// ATENCÃO: cria o processo mas o mesmo 
@@ -44,20 +43,37 @@ public class SeuSO extends SO {
 	// Assuma que 0 <= idDispositivo <= 4
 	protected OperacaoES proximaOperacaoES(int idDispositivo) {
 
-
-
+		for(OperacaoES op : processo_atual.opES) {
+			if(op.idDispositivo == idDispositivo) {
+				incrementaContadorCiclos();
+				return op;
+			}
+		}
 		return null;
 	}
 
 	@Override
 	protected Operacao proximaOperacaoCPU() {
-
-
-		return null;
+		Operacao op = null;
+		if(!processo_atual.opCarregaSoma.isEmpty()){
+			incrementaContadorCiclos();
+			op = processo_atual.opCarregaSoma.poll();
+		}
+		return op;
 	}
 
 	@Override
 	protected void executaCicloKernel() {
+		switch(esc){
+			case FIRST_COME_FIRST_SERVED:
+				break;
+			case SHORTEST_JOB_FIRST:
+				break;
+			case SHORTEST_REMANING_TIME_FIRST:
+				break;
+			case ROUND_ROBIN_QUANTUM_5:
+				break;
+		}
 
 		if(processos.peek().estado.equals(PCB.Estado.TERMINADO)) {
 			escalona.addListaTerminados(processos.peek());
@@ -156,7 +172,4 @@ public class SeuSO extends SO {
 		this.esc = e;
 	}
 
-	public Escalonador getEsc() {
-		return esc;
-	}
 }
