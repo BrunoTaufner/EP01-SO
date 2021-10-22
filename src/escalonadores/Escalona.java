@@ -13,7 +13,6 @@ public class Escalona {
     Queue<PCB> dispositivos = new LinkedList<>(); //FILA COM TODOS OS PROCESSOS ESPERANDO POR UM DISPOSITIVO DE ENTRADA E SAÍDA
     List<PCB> terminados = new LinkedList<>(); //FILA DE TODOS OS PROCESSOS TERMINADOS
 
-    SO.Escalonador esc;
 
     public Escalona(){
 
@@ -43,14 +42,6 @@ public class Escalona {
 
     public void delFilaDispositivos(){
         if(!dispositivos.isEmpty()) dispositivos.poll();
-    }
-
-    public SO.Escalonador getEsc() {
-        return esc;
-    }
-
-    public void setEsc(SO.Escalonador esc) {
-        this.esc = esc;
     }
 
     public Queue<PCB> getTarefas() {

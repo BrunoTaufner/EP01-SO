@@ -13,30 +13,16 @@ import operacoes.Soma;
 public abstract class SO {
 
 	protected Processador processador = new Processador();
+
 	private HashMap<Integer, Operacao[]> novosProcessos = new HashMap<Integer, Operacao[]>();
 	private int contadorCiclos = 0;
+
 
 	public enum Escalonador {
 		FIRST_COME_FIRST_SERVED, // não preemptivo
 		SHORTEST_JOB_FIRST, // não preemptivo (média exponencial comecando em 5)
 		SHORTEST_REMANING_TIME_FIRST, // preemptivo (média exponencial comecando em 5)
 		ROUND_ROBIN_QUANTUM_5 // preemptivo
-	}
-
-	public void simula() {
-		while (!novosProcessos.isEmpty() || temTarefasPendentes()) {
-			Operacao[] codigo = novosProcessos.get(contadorCiclos);
-
-			if (codigo != null) {
-				novosProcessos.remove(contadorCiclos);
-				criaProcesso(codigo);
-			}
-
-			executaUmCiclo();
-			imprimeEstado();
-		}
-
-		imprimeEstatisticas();
 	}
 
 	private void imprimeEstatisticas() {
@@ -136,6 +122,10 @@ public abstract class SO {
 
 	public int getContadorCiclos(){
 		return contadorCiclos;
+	}
+
+	public Processador getProcessador() {
+		return processador;
 	}
 
 	public void incrementaContadorCiclos(){

@@ -18,7 +18,6 @@ public class SeuSO extends SO {
     Escalona escalona = new Escalona();
     int idProcesso = 0;
 
-
     @Override
     // ATENCÃO: cria o processo mas o mesmo
     // só estará "pronto" no próximo ciclo
@@ -53,7 +52,14 @@ public class SeuSO extends SO {
         if (!processos.isEmpty() /*&& processos.peek().estado.equals(PCB.Estado.EXECUTANDO)*/) {
             for (OperacaoES op : processos.peek().opES) {
                 if (op.idDispositivo == idDispositivo) {
-                    incrementaContadorCiclos();
+                    if(op.ciclos <= 1) {
+                        if(!processos.peek().opES.isEmpty()) processos.peek().opES.remove(op);
+                        else {
+                            getEsvazia();
+                        }
+                        return null;
+                    }
+
                     return op;
                 }
             }
@@ -65,14 +71,19 @@ public class SeuSO extends SO {
     protected Operacao proximaOperacaoCPU() {
         Operacao op = null;
         if (!processos.isEmpty() && !processos.peek().opCarregaSoma.isEmpty() /*&& processos.peek().estado.equals(PCB.Estado.EXECUTANDO)*/) {
-            incrementaContadorCiclos();
-            op = processos.peek().opCarregaSoma.poll();
+            if(processos.peek().opCarregaSoma.size() > 1
+                    || (processos.peek().opES.size() == 1 && processos.peek().opES.get(0).ciclos == 1)
+                        || (processos.peek().opES.isEmpty() && processos.peek().opCarregaSoma.size() == 1))
+                op = processos.peek().opCarregaSoma.poll();
+            else return processos.peek().opCarregaSoma.peek();
         }
+        else if (processos.isEmpty()) return getCarregavazia();
         return op;
     }
 
     @Override
     protected void executaCicloKernel() {
+        carregaRegistradoresVirtuais(getProcessador());
         if(!processos.isEmpty() && processos.peek().estado.equals(PCB.Estado.EXECUTANDO) && processos.peek().opES.isEmpty() && processos.peek().opCarregaSoma.isEmpty()) {
             processos.peek().estado = PCB.Estado.TERMINADO;
         }
@@ -82,12 +93,10 @@ public class SeuSO extends SO {
         if(processos.isEmpty()) return;
         switch (esc) {
             case FIRST_COME_FIRST_SERVED:
-
                 if (processos.peek().estado.equals(PCB.Estado.NOVO) && processos.peek().contadorDePrograma > 0) {
                     processos.peek().estado = PCB.Estado.PRONTO;
                     break;
                 } else if (processos.peek().estado.equals(PCB.Estado.PRONTO) && processos.peek().contadorDePrograma > 1) {
-                    processos.poll();
                     processos.peek().estado = PCB.Estado.EXECUTANDO;
                     break;
                 }
@@ -103,12 +112,15 @@ public class SeuSO extends SO {
 
     }
 
+    private void carregaRegistradoresVirtuais(Processador processador) {
+        if(!processos.isEmpty()) {
+            System.arraycopy(processador.registradores, 0, processos.peek().registradores, 0, processador.registradores.length);
+        }
+    }
+
     @Override
     protected boolean temTarefasPendentes() {
-        for (PCB proc : processos) {
-            if (!proc.estado.equals(PCB.Estado.TERMINADO)) return true;
-        }
-        return false;
+        return !processos.isEmpty();
     }
 
     @Override
@@ -191,6 +203,16 @@ public class SeuSO extends SO {
     @Override
     public void defineEscalonador(Escalonador e) {
         this.esc = e;
+    }
+
+    public Carrega getCarregavazia() {
+        return new Carrega(0, 0);
+    }
+
+    public void getEsvazia() {
+        OperacaoES esvazia = new OperacaoES(1 , 1);
+        assert processos.peek() != null;
+        processos.peek().opES.add(esvazia);
     }
 
 }

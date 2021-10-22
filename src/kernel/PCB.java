@@ -2,7 +2,6 @@ package kernel;
 import operacoes.Operacao;
 import operacoes.OperacaoES;
 
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -15,11 +14,12 @@ public class PCB implements Comparable<PCB> {
 	 */
 
 
-	public enum Estado {NOVO, PRONTO, EXECUTANDO, ESPERANDO, TERMINADO;};
+	public enum Estado {NOVO, PRONTO, EXECUTANDO, ESPERANDO, TERMINADO}
 	public int idProcesso; // primeiro processo criado deve ter id = 0
 	public Estado estado = Estado.NOVO;
 	public int[] registradores = new int[5];
 	public int contadorDePrograma = 0;
+	public int instanteChegada;
 	public Operacao[] codigo;
 	Queue<Operacao> opCarregaSoma = new LinkedList<>();
 	List<OperacaoES> opES = new LinkedList<>();
