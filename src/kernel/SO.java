@@ -93,6 +93,7 @@ public abstract class SO {
 	}
 
 	private void executaUmCicloES() {
+
 		for (int i = 0; i < 5; i++) {
 			OperacaoES op = proximaOperacaoES(i);
 

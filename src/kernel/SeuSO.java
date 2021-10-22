@@ -15,8 +15,11 @@ public class SeuSO extends SO {
 
 	Escalonador esc;
 	Queue<PCB> processos = new LinkedList<>();
+	PCB processo_atual;
 	Escalona escalona = new Escalona();
+	int i_opr = 0;
 	int idProcesso = 0;
+	List<Queue<Operacao>> operacoes = new LinkedList<>();
 
 	@Override
 	// ATENCÃO: cria o processo mas o mesmo 
@@ -34,24 +37,28 @@ public class SeuSO extends SO {
 
 	@Override
 	protected void trocaContexto(PCB pcbAtual, PCB pcbProximo) {
-		// TODO Auto-generated method stub
+
 	}
 
 	@Override
 	// Assuma que 0 <= idDispositivo <= 4
 	protected OperacaoES proximaOperacaoES(int idDispositivo) {
 
+
+
 		return null;
 	}
 
 	@Override
 	protected Operacao proximaOperacaoCPU() {
-		// TODO Auto-generated method stub
+
+
 		return null;
 	}
 
 	@Override
 	protected void executaCicloKernel() {
+
 		if(processos.peek().estado.equals(PCB.Estado.TERMINADO)) {
 			escalona.addListaTerminados(processos.peek());
 			processos.poll();
@@ -61,8 +68,9 @@ public class SeuSO extends SO {
 
 	@Override
 	protected boolean temTarefasPendentes() {
-		Operacao codigo[] = getCodigo();
-
+		for(PCB proc : processos) {
+			if(!proc.estado.equals(PCB.Estado.TERMINADO)) return true;
+		}
 		return false;
 	}
 

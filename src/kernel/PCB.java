@@ -21,12 +21,9 @@ public class PCB implements Comparable<PCB> {
 	public int proxChuteTamBurstCPU; //GUSTAVO COLOCOU ESSE TROÇO AQUI, PARA O ESCALONADOR LÁ, ESQUECI O NOME
 	public int contadorBurst = 0;
 	public int contadorCiclos = 0; //Para Round Robin
-/*
-	PCB () {
-		List<PCB> prontos = null;
-		Collections.sort(prontos);
-	}
-*/
+	public int remainingTime; // Shortest Job First
+
+	// SHORTEST JOB FIRST ORDENAR LISTA DE PROCESSOS E PEGAR O PRIMEIRO PROCESSO
 	@Override
 	public int compareTo(PCB outro) {
 		if (this.idProcesso > outro.idProcesso) return 1;
