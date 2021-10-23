@@ -1,10 +1,9 @@
 package kernel;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 
-import escalonadores.Escalona;
+import listas.Listas;
+import listas.SortInstanteChegada;
 import operacoes.Carrega;
 import operacoes.Operacao;
 import operacoes.OperacaoES;
@@ -14,22 +13,23 @@ import operacoes.Soma;
 public class SeuSO extends SO {
 
     Escalonador esc;
-    Queue<PCB> processos = new LinkedList<>();
-    Escalona escalona = new Escalona();
+    List<PCB> processos = new LinkedList<>();
+    Listas listsandqueues = new Listas();
     int idProcesso = 0;
 
     @Override
     // ATENCÃO: cria o processo mas o mesmo
     // só estará "pronto" no próximo ciclo
     protected void criaProcesso(Operacao[] codigo) {
-
         PCB proc = new PCB();
         proc.codigo = codigo;
-        proc.contadorCiclos = getContadorCiclos();
-        proc.idProcesso = idProcessoNovo();
+        proc.instanteChegada = getContadorCiclos();
+        idProcesso++;
+        proc.idProcesso = idProcesso;
         processos.add(proc);
-        escalona.addFilaTarefas(proc);
-        for(Operacao p : proc.codigo) {
+        listsandqueues.addFilaTarefas(proc);
+
+        for(Operacao p : proc.codigo) { // troca de contexto, vai para lá
             if(p instanceof Soma || p instanceof Carrega) {
                 proc.opCarregaSoma.add(p);
             }
@@ -48,18 +48,13 @@ public class SeuSO extends SO {
     @Override
     // Assuma que 0 <= idDispositivo <= 4
     protected OperacaoES proximaOperacaoES(int idDispositivo) {
-
-        if (!processos.isEmpty() /*&& processos.peek().estado.equals(PCB.Estado.EXECUTANDO)*/) {
-            for (OperacaoES op : processos.peek().opES) {
+        if (!processos.isEmpty() && processos.get(0).estado.equals(PCB.Estado.EXECUTANDO)) {
+            for (OperacaoES op : processos.get(0).opES) {
                 if (op.idDispositivo == idDispositivo) {
                     if(op.ciclos <= 1) {
-                        if(!processos.peek().opES.isEmpty()) processos.peek().opES.remove(op);
-                        else {
-                            getEsvazia();
-                        }
+                        if(!processos.get(0).opES.isEmpty()) processos.get(0).opES.remove(op);
                         return null;
                     }
-
                     return op;
                 }
             }
@@ -69,35 +64,42 @@ public class SeuSO extends SO {
 
     @Override
     protected Operacao proximaOperacaoCPU() {
+        if(!processos.isEmpty()) processos.get(0).contadorDePrograma++;
         Operacao op = null;
-        if (!processos.isEmpty() && !processos.peek().opCarregaSoma.isEmpty() /*&& processos.peek().estado.equals(PCB.Estado.EXECUTANDO)*/) {
-            if(processos.peek().opCarregaSoma.size() > 1
-                    || (processos.peek().opES.size() == 1 && processos.peek().opES.get(0).ciclos == 1)
-                        || (processos.peek().opES.isEmpty() && processos.peek().opCarregaSoma.size() == 1))
-                op = processos.peek().opCarregaSoma.poll();
-            else return processos.peek().opCarregaSoma.peek();
+        if (!processos.isEmpty() && !processos.get(0).opCarregaSoma.isEmpty() && processos.get(0).estado.equals(PCB.Estado.EXECUTANDO)) {
+            if(processos.get(0).opCarregaSoma.size() > 1
+                    || (processos.get(0).opES.size() == 1 && processos.get(0).opES.get(0).ciclos == 1)
+                        || (processos.get(0)).opES.isEmpty() && processos.get(0).opCarregaSoma.size() == 1)
+            {
+                op = processos.get(0).opCarregaSoma.poll();
+            }
+            else return processos.get(0).opCarregaSoma.peek();
         }
-        else if (processos.isEmpty()) return getCarregavazia();
+        else if (processos.isEmpty() || !processos.get(0).estado.equals(PCB.Estado.EXECUTANDO)) return getCarregavazia();
         return op;
     }
 
     @Override
     protected void executaCicloKernel() {
         carregaRegistradoresVirtuais(getProcessador());
-        if(!processos.isEmpty() && processos.peek().estado.equals(PCB.Estado.EXECUTANDO) && processos.peek().opES.isEmpty() && processos.peek().opCarregaSoma.isEmpty()) {
-            processos.peek().estado = PCB.Estado.TERMINADO;
+        if(!processos.isEmpty() && processos.get(0).estado.equals(PCB.Estado.EXECUTANDO) && processos.get(0).opES.isEmpty() && processos.get(0).opCarregaSoma.isEmpty()) {
+            processos.get(0).estado = PCB.Estado.TERMINADO;
+            listsandqueues.addListaTerminados(processos.get(0));
         }
-        if (!processos.isEmpty() && processos.peek().estado.equals(PCB.Estado.TERMINADO)) {
-            escalona.addListaTerminados(processos.poll());
+        if (!processos.isEmpty() && processos.get(0).estado.equals(PCB.Estado.TERMINADO)) {
+            processos.remove(0);
         }
         if(processos.isEmpty()) return;
         switch (esc) {
             case FIRST_COME_FIRST_SERVED:
-                if (processos.peek().estado.equals(PCB.Estado.NOVO) && processos.peek().contadorDePrograma > 0) {
-                    processos.peek().estado = PCB.Estado.PRONTO;
+                if (processos.get(0).estado.equals(PCB.Estado.NOVO) && processos.get(0).contadorDePrograma > 0) {
+                    processos.get(0).estado = PCB.Estado.PRONTO;
+                    listsandqueues.addFilaPronto(processos.get(0));
+                    processos.sort(new SortInstanteChegada());
                     break;
-                } else if (processos.peek().estado.equals(PCB.Estado.PRONTO) && processos.peek().contadorDePrograma > 1) {
-                    processos.peek().estado = PCB.Estado.EXECUTANDO;
+                } else if (processos.get(0).estado.equals(PCB.Estado.PRONTO) && processos.get(0).contadorDePrograma > 1) {
+                    processos.get(0).estado = PCB.Estado.EXECUTANDO;
+                    listsandqueues.delFilaPronto();
                     break;
                 }
                 break;
@@ -107,14 +109,14 @@ public class SeuSO extends SO {
                 break;
             case ROUND_ROBIN_QUANTUM_5:
                 break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + esc);
         }
-        processos.peek().contadorDePrograma++;
-
     }
 
     private void carregaRegistradoresVirtuais(Processador processador) {
         if(!processos.isEmpty()) {
-            System.arraycopy(processador.registradores, 0, processos.peek().registradores, 0, processador.registradores.length);
+            System.arraycopy(processador.registradores, 0, processos.get(0).registradores, 0, processador.registradores.length);
         }
     }
 
@@ -125,15 +127,21 @@ public class SeuSO extends SO {
 
     @Override
     protected Integer idProcessoNovo() {
-        idProcesso++;
-        return idProcesso - 1;
+        Queue<PCB> tarefas = listsandqueues.getTarefas();
+        int i = 0;
+        for (PCB processo : tarefas) {
+            if (processo.estado.equals(PCB.Estado.NOVO)) {
+                i++;
+            }
+        }
+        return i;
     }
 
     @Override
     protected List<Integer> idProcessosProntos() {
         List<Integer> id_ProcessosProntos = new LinkedList<>();
-        Queue<PCB> tarefas = escalona.getTarefas();
-        for (PCB processo : tarefas) {
+        Queue<PCB> pronto = listsandqueues.getPronto();
+        for (PCB processo : pronto) {
             if (processo.estado.equals(PCB.Estado.PRONTO)) {
                 id_ProcessosProntos.add(processo.idProcesso);
             }
@@ -143,19 +151,20 @@ public class SeuSO extends SO {
 
     @Override
     protected Integer idProcessoExecutando() {
-        Queue<PCB> tarefas = escalona.getTarefas();
+        Queue<PCB> tarefas = listsandqueues.getTarefas();
+        int i = 0;
         for (PCB processo : tarefas) {
             if (processo.estado.equals(PCB.Estado.EXECUTANDO)) {
-                return processo.idProcesso;
+                i++;
             }
         }
-        return -1;
+        return i;
     }
 
     @Override
     protected List<Integer> idProcessosEsperando() {
         List<Integer> id_ProcessosEsperando = new LinkedList<>();
-        Queue<PCB> tarefas = escalona.getTarefas();
+        Queue<PCB> tarefas = listsandqueues.getTarefas();
         for (PCB processo : tarefas) {
             if (processo.estado.equals(PCB.Estado.ESPERANDO)) {
                 id_ProcessosEsperando.add(processo.idProcesso);
@@ -167,7 +176,7 @@ public class SeuSO extends SO {
     @Override
     protected List<Integer> idProcessosTerminados() {
         List<Integer> id_ProcessosTerminados = new LinkedList<>();
-        Queue<PCB> tarefas = escalona.getTarefas();
+        List<PCB> tarefas = listsandqueues.getTerminados();
         for (PCB processo : tarefas) {
             if (processo.estado.equals(PCB.Estado.TERMINADO)) {
                 id_ProcessosTerminados.add(processo.idProcesso);
@@ -178,7 +187,7 @@ public class SeuSO extends SO {
 
     @Override
     protected int tempoEsperaMedio() {
-        // TODO Auto-generated method stub
+
         return 0;
     }
 
@@ -207,12 +216,6 @@ public class SeuSO extends SO {
 
     public Carrega getCarregavazia() {
         return new Carrega(0, 0);
-    }
-
-    public void getEsvazia() {
-        OperacaoES esvazia = new OperacaoES(1 , 1);
-        assert processos.peek() != null;
-        processos.peek().opES.add(esvazia);
     }
 
 }

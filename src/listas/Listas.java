@@ -1,20 +1,19 @@
-package escalonadores;
+package listas;
 
 import kernel.*;
-import operacoes.*;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-public class Escalona {
+public class Listas implements Comparable<PCB>{
     Queue<PCB> tarefas = new LinkedList<>(); //FILA COM TODOS OS PROCESSOS DO SISTEMA
     Queue<PCB> pronto = new LinkedList<>(); //FILA COM TODOS OS PROCESSOS QUE ESTÃO PRONTOS
     Queue<PCB> dispositivos = new LinkedList<>(); //FILA COM TODOS OS PROCESSOS ESPERANDO POR UM DISPOSITIVO DE ENTRADA E SAÍDA
     List<PCB> terminados = new LinkedList<>(); //FILA DE TODOS OS PROCESSOS TERMINADOS
 
 
-    public Escalona(){
+    public Listas(){
 
     }
 
@@ -57,4 +56,8 @@ public class Escalona {
     }
 
 
+    @Override
+    public int compareTo(PCB o) {
+        return 0;
+    }
 }

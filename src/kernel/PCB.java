@@ -6,7 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-public class PCB implements Comparable<PCB> {
+public class PCB {
 
 	/*
 	NOVO = processo novo, porém não roda ainda
@@ -14,7 +14,8 @@ public class PCB implements Comparable<PCB> {
 	 */
 
 
-	public enum Estado {NOVO, PRONTO, EXECUTANDO, ESPERANDO, TERMINADO}
+
+	public enum Estado {NOVO, PRONTO, EXECUTANDO, ESPERANDO, TERMINADO;}
 	public int idProcesso; // primeiro processo criado deve ter id = 0
 	public Estado estado = Estado.NOVO;
 	public int[] registradores = new int[5];
@@ -23,18 +24,15 @@ public class PCB implements Comparable<PCB> {
 	public Operacao[] codigo;
 	Queue<Operacao> opCarregaSoma = new LinkedList<>();
 	List<OperacaoES> opES = new LinkedList<>();
-
 	public int proxChuteTamBurstCPU; //GUSTAVO COLOCOU ESSE TROÇO AQUI, PARA O ESCALONADOR LÁ, ESQUECI O NOME
+
 	public int contadorBurst = 0;
 	public int contadorCiclos = 0; //Para Round Robin
 	public int remainingTime; // Shortest Job First
+	public int espera = 0; // tempo de espera do processo
 
+	public int retorno = 0; // tempo para terminar o processo
+	public int resposta = 0; // tempo para espera até executar a primeira execução
 	// SHORTEST JOB FIRST ORDENAR LISTA DE PROCESSOS E PEGAR O PRIMEIRO PROCESSO
-	@Override
-	public int compareTo(PCB outro) {
-		if (this.idProcesso > outro.idProcesso) return 1;
-		else if(this.idProcesso < outro.idProcesso) return -1;
-		else return 0;
-	}
 
 }
