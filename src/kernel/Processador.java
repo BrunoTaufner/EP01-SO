@@ -8,6 +8,7 @@ public class Processador {
 	public int[] registradores = new int[5];
 
 	public void executa(Operacao op) {
+		if (op == null) return;
 		if (op instanceof Carrega) {
 			Carrega c = (Carrega) op;
 			registradores[c.registrador] = c.valor;

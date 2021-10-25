@@ -3,40 +3,31 @@ package kernel;
 import java.util.*;
 
 import listas.Listas;
-import listas.SortInstanteChegada;
 import operacoes.Carrega;
 import operacoes.Operacao;
 import operacoes.OperacaoES;
 import operacoes.Soma;
 
-
 public class SeuSO extends SO {
 
     Escalonador esc;
     List<PCB> processos = new LinkedList<>();
-    Listas listsandqueues = new Listas();
-    int idProcesso = 0;
+    Listas listsAndQueues = new Listas();
 
     @Override
-    // ATENCÃO: cria o processo mas o mesmo
+    // ATENÇÃO: cria o processo mas o mesmo
     // só estará "pronto" no próximo ciclo
     protected void criaProcesso(Operacao[] codigo) {
+
         PCB proc = new PCB();
         proc.codigo = codigo;
-        proc.instanteChegada = getContadorCiclos();
-        idProcesso++;
-        proc.idProcesso = idProcesso;
+        proc.idProcesso = getContadorCiclos();
         processos.add(proc);
-        listsandqueues.addFilaTarefas(proc);
-
-        for(Operacao p : proc.codigo) { // troca de contexto, vai para lá
-            if(p instanceof Soma || p instanceof Carrega) {
-                proc.opCarregaSoma.add(p);
-            }
-            else if(p instanceof OperacaoES) {
-                proc.opES.add((OperacaoES) p);
-            }
-        }
+        processos.get(processos.size() - 1).instanteChegada = getContadorCiclos();
+        listsAndQueues.addFilaNovo(proc);
+        listsAndQueues.addFilaTarefas(proc);
+        Collections.addAll(proc.operacoes, proc.codigo);
+        proc.calculaCicloBurst();
 
     }
 
@@ -48,62 +39,52 @@ public class SeuSO extends SO {
     @Override
     // Assuma que 0 <= idDispositivo <= 4
     protected OperacaoES proximaOperacaoES(int idDispositivo) {
-        if (!processos.isEmpty() && processos.get(0).estado.equals(PCB.Estado.EXECUTANDO)) {
-            for (OperacaoES op : processos.get(0).opES) {
-                if (op.idDispositivo == idDispositivo) {
-                    if(op.ciclos <= 1) {
-                        if(!processos.get(0).opES.isEmpty()) processos.get(0).opES.remove(op);
-                        return null;
-                    }
-                    return op;
+
+        OperacaoES op = null;
+        List<OperacaoES> disp = listsAndQueues.getDispositivo(idDispositivo);
+        if(disp != null && !disp.isEmpty()) {
+            if(!processos.isEmpty() && !processos.get(0).estado.equals(PCB.Estado.NOVO) && !processos.get(0).estado.equals(PCB.Estado.PRONTO)){
+                op = disp.get(0);
+                if(op.ciclos > 1) processos.get(0).ESexecuting = true;
+                else if (op.ciclos == 1) {
+                    processos.get(0).ESexecuting = false;
+                    processos.get(0).operacoes.poll();
+                    op = disp.remove(0);
                 }
             }
         }
-        return null;
+
+        return op;
     }
 
     @Override
     protected Operacao proximaOperacaoCPU() {
-        if(!processos.isEmpty()) processos.get(0).contadorDePrograma++;
+
         Operacao op = null;
-        if (!processos.isEmpty() && !processos.get(0).opCarregaSoma.isEmpty() && processos.get(0).estado.equals(PCB.Estado.EXECUTANDO)) {
-            if(processos.get(0).opCarregaSoma.size() > 1
-                    || (processos.get(0).opES.size() == 1 && processos.get(0).opES.get(0).ciclos == 1)
-                        || (processos.get(0)).opES.isEmpty() && processos.get(0).opCarregaSoma.size() == 1)
-            {
-                op = processos.get(0).opCarregaSoma.poll();
+        if (!processos.isEmpty() && !processos.get(0).operacoes.isEmpty()) {
+            processos.get(0).contadorDePrograma++;
+            if (processos.get(0).operacoes.peek() instanceof Carrega || processos.get(0).operacoes.peek() instanceof Soma) {
+                if (processos.get(0).estado.equals(PCB.Estado.EXECUTANDO) && processos.get(0).ESexecuting == false) op = processos.get(0).operacoes.poll();
             }
-            else return processos.get(0).opCarregaSoma.peek();
         }
-        else if (processos.isEmpty() || !processos.get(0).estado.equals(PCB.Estado.EXECUTANDO)) return getCarregavazia();
+
         return op;
     }
 
     @Override
     protected void executaCicloKernel() {
-        carregaRegistradoresVirtuais(getProcessador());
-        if(!processos.isEmpty() && processos.get(0).estado.equals(PCB.Estado.EXECUTANDO) && processos.get(0).opES.isEmpty() && processos.get(0).opCarregaSoma.isEmpty()) {
-            processos.get(0).estado = PCB.Estado.TERMINADO;
-            listsandqueues.addListaTerminados(processos.get(0));
-        }
-        if (!processos.isEmpty() && processos.get(0).estado.equals(PCB.Estado.TERMINADO)) {
-            processos.remove(0);
-        }
+        carregaRegistradoresVirtuais(getProcessador()); // vai para troca de contexto
+        if(listsAndQueues.getDispositivos().isEmpty()) listsAndQueues.inicializaHashMap();
         if(processos.isEmpty()) return;
+        if(!processos.get(0).operacoes.isEmpty() && processos.get(0).operacoes.peek() instanceof OperacaoES
+                && !listsAndQueues.getDispositivo(((OperacaoES) processos.get(0).operacoes.peek()).idDispositivo).contains(processos.get(0).operacoes.peek()))
+            listsAndQueues.addOperacaoESHashMap((OperacaoES) processos.get(0).operacoes.peek());
         switch (esc) {
             case FIRST_COME_FIRST_SERVED:
-                if (processos.get(0).estado.equals(PCB.Estado.NOVO) && processos.get(0).contadorDePrograma > 0) {
-                    processos.get(0).estado = PCB.Estado.PRONTO;
-                    listsandqueues.addFilaPronto(processos.get(0));
-                    processos.sort(new SortInstanteChegada());
-                    break;
-                } else if (processos.get(0).estado.equals(PCB.Estado.PRONTO) && processos.get(0).contadorDePrograma > 1) {
-                    processos.get(0).estado = PCB.Estado.EXECUTANDO;
-                    listsandqueues.delFilaPronto();
-                    break;
-                }
+                listas.Escalonadores.FCFS(processos,listsAndQueues);
                 break;
             case SHORTEST_JOB_FIRST:
+                
                 break;
             case SHORTEST_REMANING_TIME_FIRST:
                 break;
@@ -112,6 +93,8 @@ public class SeuSO extends SO {
             default:
                 throw new IllegalStateException("Unexpected value: " + esc);
         }
+        for(PCB proc : processos)
+            proc.tempoProcesso++;
     }
 
     private void carregaRegistradoresVirtuais(Processador processador) {
@@ -127,7 +110,7 @@ public class SeuSO extends SO {
 
     @Override
     protected Integer idProcessoNovo() {
-        Queue<PCB> tarefas = listsandqueues.getTarefas();
+        Queue<PCB> tarefas = listsAndQueues.getTarefas();
         int i = 0;
         for (PCB processo : tarefas) {
             if (processo.estado.equals(PCB.Estado.NOVO)) {
@@ -140,7 +123,7 @@ public class SeuSO extends SO {
     @Override
     protected List<Integer> idProcessosProntos() {
         List<Integer> id_ProcessosProntos = new LinkedList<>();
-        Queue<PCB> pronto = listsandqueues.getPronto();
+        Queue<PCB> pronto = listsAndQueues.getPronto();
         for (PCB processo : pronto) {
             if (processo.estado.equals(PCB.Estado.PRONTO)) {
                 id_ProcessosProntos.add(processo.idProcesso);
@@ -151,7 +134,7 @@ public class SeuSO extends SO {
 
     @Override
     protected Integer idProcessoExecutando() {
-        Queue<PCB> tarefas = listsandqueues.getTarefas();
+        Queue<PCB> tarefas = listsAndQueues.getTarefas();
         int i = 0;
         for (PCB processo : tarefas) {
             if (processo.estado.equals(PCB.Estado.EXECUTANDO)) {
@@ -164,7 +147,7 @@ public class SeuSO extends SO {
     @Override
     protected List<Integer> idProcessosEsperando() {
         List<Integer> id_ProcessosEsperando = new LinkedList<>();
-        Queue<PCB> tarefas = listsandqueues.getTarefas();
+        Queue<PCB> tarefas = listsAndQueues.getTarefas();
         for (PCB processo : tarefas) {
             if (processo.estado.equals(PCB.Estado.ESPERANDO)) {
                 id_ProcessosEsperando.add(processo.idProcesso);
@@ -176,7 +159,7 @@ public class SeuSO extends SO {
     @Override
     protected List<Integer> idProcessosTerminados() {
         List<Integer> id_ProcessosTerminados = new LinkedList<>();
-        List<PCB> tarefas = listsandqueues.getTerminados();
+        List<PCB> tarefas = listsAndQueues.getTerminados();
         for (PCB processo : tarefas) {
             if (processo.estado.equals(PCB.Estado.TERMINADO)) {
                 id_ProcessosTerminados.add(processo.idProcesso);
@@ -212,10 +195,6 @@ public class SeuSO extends SO {
     @Override
     public void defineEscalonador(Escalonador e) {
         this.esc = e;
-    }
-
-    public Carrega getCarregavazia() {
-        return new Carrega(0, 0);
     }
 
 }
