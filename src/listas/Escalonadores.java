@@ -17,12 +17,11 @@ public class Escalonadores {
             // 2) ADICIONO NA LISTA DE TERMINADOS
             // 3) REMOVO DA LISTA DE PROCESSOS
 
-            if (p.estado.equals(PCB.Estado.EXECUTANDO) && p.operacoes.size() == 0) {
+            if (p.estado.equals(PCB.Estado.EXECUTANDO) && p.operacao >= p.codigo.length) {
                 p.estado = PCB.Estado.TERMINADO;
                 listsAndQueues.addListaTerminados(p);
                 processos.remove(p);
                 if(!processos.isEmpty()) {
-                    processos.get(0).contadorDePrograma += 2;
                     p = processos.get(0);
                 }
 
@@ -34,11 +33,6 @@ public class Escalonadores {
                 listsAndQueues.delListaNovos(p);
             }
 
-            // PROCESSO PRONTO E CONTADOR DE PROGRAMA > 1, ENTÃO PROCESSO PASSA A SER EXECUTANDO
-            else if (p.estado.equals(PCB.Estado.PRONTO) && p.contadorDePrograma > 1) {
-                p.estado = PCB.Estado.EXECUTANDO;
-                listsAndQueues.delFilaPronto();
-            }
         }
     }
 }

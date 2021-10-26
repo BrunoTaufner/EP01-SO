@@ -2,6 +2,7 @@ package kernel;
 
 import java.util.*;
 
+import listas.Dispositivos;
 import listas.Listas;
 import operacoes.Carrega;
 import operacoes.Operacao;
@@ -13,6 +14,7 @@ public class SeuSO extends SO {
     Escalonador esc;
     List<PCB> processos = new LinkedList<>();
     Listas listsAndQueues = new Listas();
+    int trocaContexto = 0;
 
     @Override
     // ATENÇÃO: cria o processo mas o mesmo
@@ -26,7 +28,6 @@ public class SeuSO extends SO {
         processos.get(processos.size() - 1).instanteChegada = getContadorCiclos();
         listsAndQueues.addFilaNovo(proc);
         listsAndQueues.addFilaTarefas(proc);
-        Collections.addAll(proc.operacoes, proc.codigo);
         proc.calculaCicloBurst();
 
     }
@@ -41,17 +42,10 @@ public class SeuSO extends SO {
     protected OperacaoES proximaOperacaoES(int idDispositivo) {
 
         OperacaoES op = null;
-        List<OperacaoES> disp = listsAndQueues.getDispositivo(idDispositivo);
+        List<Dispositivos> disp = listsAndQueues.getDispositivo(idDispositivo);
         if(disp != null && !disp.isEmpty()) {
-            if(!processos.isEmpty() && !processos.get(0).estado.equals(PCB.Estado.NOVO) && !processos.get(0).estado.equals(PCB.Estado.PRONTO)){
-                op = disp.get(0);
-                if(op.ciclos > 1) processos.get(0).ESexecuting = true;
-                else if (op.ciclos == 1) {
-                    processos.get(0).ESexecuting = false;
-                    processos.get(0).operacoes.poll();
-                    op = disp.remove(0);
-                }
-            }
+
+            return disp.get(0).op;
         }
 
         return op;
@@ -61,24 +55,35 @@ public class SeuSO extends SO {
     protected Operacao proximaOperacaoCPU() {
 
         Operacao op = null;
-        if (!processos.isEmpty() && !processos.get(0).operacoes.isEmpty()) {
-            processos.get(0).contadorDePrograma++;
-            if (processos.get(0).operacoes.peek() instanceof Carrega || processos.get(0).operacoes.peek() instanceof Soma) {
-                if (processos.get(0).estado.equals(PCB.Estado.EXECUTANDO) && processos.get(0).ESexecuting == false) op = processos.get(0).operacoes.poll();
+        for (PCB p : processos) {
+            if (p.operacao < p.codigo.length) {
+                p.contadorDePrograma++;
+                if (p.codigo[p.operacao] instanceof Carrega || p.codigo[p.operacao] instanceof Soma) {
+                    if (p.estado.equals(PCB.Estado.EXECUTANDO) && !p.ESexecuting) {
+                        op = p.codigo[p.operacao];
+                        p.operacao++;
+                        return op;
+                    }
+                }
             }
         }
-
         return op;
     }
 
     @Override
     protected void executaCicloKernel() {
+        PCB ant = null;
+        for (PCB p : processos) {
+            // PROCESSO PRONTO E CONTADOR DE PROGRAMA > 1, ENTÃO PROCESSO PASSA A SER EXECUTANDO
+            if (p.estado.equals(PCB.Estado.PRONTO) && (ant == null || ant.ESexecuting)) {
+                p.estado = PCB.Estado.EXECUTANDO;
+                listsAndQueues.delFilaPronto();
+            }
+            ant = p;
+        }
         carregaRegistradoresVirtuais(getProcessador()); // vai para troca de contexto
-        if(listsAndQueues.getDispositivos().isEmpty()) listsAndQueues.inicializaHashMap();
         if(processos.isEmpty()) return;
-        if(!processos.get(0).operacoes.isEmpty() && processos.get(0).operacoes.peek() instanceof OperacaoES
-                && !listsAndQueues.getDispositivo(((OperacaoES) processos.get(0).operacoes.peek()).idDispositivo).contains(processos.get(0).operacoes.peek()))
-            listsAndQueues.addOperacaoESHashMap((OperacaoES) processos.get(0).operacoes.peek());
+        addListaDispositivos();
         switch (esc) {
             case FIRST_COME_FIRST_SERVED:
                 listas.Escalonadores.FCFS(processos,listsAndQueues);
@@ -95,6 +100,16 @@ public class SeuSO extends SO {
         }
         for(PCB proc : processos)
             proc.tempoProcesso++;
+    }
+
+    private void addListaDispositivos() {
+        if(listsAndQueues.getDispositivos().isEmpty()) listsAndQueues.inicializaHashMap();
+
+        for(PCB p : processos) {
+            if(p.operacao < p.codigo.length && p.codigo[p.operacao] instanceof OperacaoES)
+                if(!(listsAndQueues.getDispositivo(((OperacaoES) p.codigo[p.operacao]).idDispositivo).contains(p.codigo[p.operacao])))
+                listsAndQueues.addOperacaoESHashMap(p);
+        }
     }
 
     private void carregaRegistradoresVirtuais(Processador processador) {
@@ -188,8 +203,7 @@ public class SeuSO extends SO {
 
     @Override
     protected int trocasContexto() {
-        // TODO Auto-generated method stub
-        return 0;
+        return trocaContexto;
     }
 
     @Override

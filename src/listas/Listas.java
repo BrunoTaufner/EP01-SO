@@ -1,7 +1,6 @@
 package listas;
 
 import kernel.*;
-import operacoes.Operacao;
 import operacoes.OperacaoES;
 
 import java.util.HashMap;
@@ -16,7 +15,7 @@ public class Listas implements Comparable<PCB>{
     List<PCB> novos = new LinkedList<>(); //FILA COM TODOS OS PROCESSOS QUE ESTÃO NOVOS
     List<PCB> terminados = new LinkedList<>(); //FILA DE TODOS OS PROCESSOS TERMINADOS
 
-    HashMap<Integer,List<OperacaoES>> dispositivos = new HashMap<>(); //FILA COM TODOS OS PROCESSOS ESPERANDO POR UM DISPOSITIVO DE ENTRADA E SAÍDA
+    HashMap<Integer,List<Dispositivos>> dispositivos = new HashMap<>(); //FILA COM TODOS OS PROCESSOS ESPERANDO POR UM DISPOSITIVO DE ENTRADA E SAÍDA
 
     public Listas(){
 
@@ -36,11 +35,11 @@ public class Listas implements Comparable<PCB>{
 
     public void inicializaHashMap() {
         if(dispositivos.size() == 0) {
-            List<OperacaoES> lista1 = new LinkedList<>();
-            List<OperacaoES> lista2 = new LinkedList<>();
-            List<OperacaoES> lista3 = new LinkedList<>();
-            List<OperacaoES> lista4 = new LinkedList<>();
-            List<OperacaoES> lista5 = new LinkedList<>();
+            List<Dispositivos> lista1 = new LinkedList<>();
+            List<Dispositivos> lista2 = new LinkedList<>();
+            List<Dispositivos> lista3 = new LinkedList<>();
+            List<Dispositivos> lista4 = new LinkedList<>();
+            List<Dispositivos> lista5 = new LinkedList<>();
             dispositivos.put(0,lista1);
             dispositivos.put(1,lista2);
             dispositivos.put(2,lista3);
@@ -51,9 +50,12 @@ public class Listas implements Comparable<PCB>{
 
 
     // ADD OPERAÇÃO NO DISPOSITIVO
-    public void addOperacaoESHashMap(OperacaoES op) {
-        if(op instanceof OperacaoES) {
-            List<OperacaoES> lista = dispositivos.get(((OperacaoES) op).idDispositivo);
+    public void addOperacaoESHashMap(PCB pro) {
+        Dispositivos op = null;
+        if(pro.codigo[pro.operacao] instanceof OperacaoES) {
+            op.op = (OperacaoES) pro.codigo[pro.operacao];
+            op.processo = pro;
+            List<Dispositivos> lista = dispositivos.get(op.op.idDispositivo);
             lista.add(op);
         }
     }
@@ -84,11 +86,11 @@ public class Listas implements Comparable<PCB>{
         return terminados;
     }
 
-    public HashMap<Integer, List<OperacaoES>> getDispositivos() {
+    public HashMap<Integer, List<Dispositivos>> getDispositivos() {
         return dispositivos;
     }
 
-    public List<OperacaoES> getDispositivo(int index) {
+    public List<Dispositivos> getDispositivo(int index) {
         return dispositivos.get(index);
     }
 

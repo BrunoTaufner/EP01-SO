@@ -20,8 +20,8 @@ public class PCB {
 	public int[] registradores = new int[5];
 	public int contadorDePrograma = 0;
 	public Operacao[] codigo;
-	public Queue<Operacao> operacoes = new LinkedList<>();
-	boolean ESexecuting = false;
+	public int operacao = 0;
+	public boolean ESexecuting = false;
 
 	public int proxChuteTamBurstCPU; //GUSTAVO COLOCOU ESSE TROÇO AQUI, PARA O ESCALONADOR LÁ, ESQUECI O NOME
 	public int contadorBurst = 0;
