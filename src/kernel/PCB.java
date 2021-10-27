@@ -35,16 +35,6 @@ public class PCB {
 	public int resposta = 0; // tempo para espera até executar a primeira execução
 	// SHORTEST JOB FIRST ORDENAR LISTA DE PROCESSOS E PEGAR O PRIMEIRO PROCESSO
 
-	public void calculaCicloBurst() {
-		boolean achouES = false;
-		for(Operacao op : codigo) {
-			if(op instanceof OperacaoES) {
-				contadorBurst += ((OperacaoES) op).ciclos;
-			}
-			else if(!(op instanceof OperacaoES)){
-				contadorBurst++;
-			}
-		}
-	}
+
 
 }
