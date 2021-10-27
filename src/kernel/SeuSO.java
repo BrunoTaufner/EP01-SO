@@ -29,6 +29,14 @@ public class SeuSO extends SO {
         listsAndQueues.addFilaNovo(proc);
         listsAndQueues.addFilaTarefas(proc);
         proc.calculaCicloBurst();
+        addListaDispositivos(proc);
+        if(proc.codigo[0] instanceof OperacaoES && processos.size() > 1) {
+            proc.estado = PCB.Estado.ESPERANDO;
+            listsAndQueues.delListaNovos(proc);
+        }
+        else if(proc.codigo[0] instanceof OperacaoES && processos.size() == 1) {
+            proc.ESexecuting = true;
+        }
 
     }
 
@@ -43,9 +51,38 @@ public class SeuSO extends SO {
 
         OperacaoES op = null;
         List<Dispositivos> disp = listsAndQueues.getDispositivo(idDispositivo);
-        if(disp != null && !disp.isEmpty()) {
+        Dispositivos opES = new Dispositivos();
+        if(disp.size() > 0) opES = disp.get(0);
+        boolean its_possible_to_executeES = true;
 
-            return disp.get(0).op;
+        for(PCB proc : processos) {
+
+            if(proc.operacao < proc.codigo.length && proc.codigo[proc.operacao] instanceof OperacaoES && disp.isEmpty()) addListaDispositivos(proc);
+
+            if(!disp.isEmpty()) {
+                if (!proc.ESexecuting && !proc.equals(disp.get(0).processo)) {
+                    its_possible_to_executeES = false;
+                    break;
+                }
+                if(proc.equals(disp.get(0).processo)) {
+                    opES.processo.ESexecuting = true;
+                    break;
+                }
+            }
+        }
+
+        if(disp.isEmpty()) return op;
+
+        if((its_possible_to_executeES && processos.size() > 1 && opES.op.idDispositivo == idDispositivo)
+                || (its_possible_to_executeES && opES.estado.equals((PCB.Estado.EXECUTANDO)) && processos.size() == 1)) {
+            opES.processo.contadorDePrograma++;
+            op = opES.op;
+            if(opES.op.ciclos == 1)  {
+                opES.processo.ESexecuting = false;
+                opES.processo.operacao++;
+                disp.remove(opES);
+            }
+            return op;
         }
 
         return op;
@@ -83,7 +120,6 @@ public class SeuSO extends SO {
         }
         carregaRegistradoresVirtuais(getProcessador()); // vai para troca de contexto
         if(processos.isEmpty()) return;
-        addListaDispositivos();
         switch (esc) {
             case FIRST_COME_FIRST_SERVED:
                 listas.Escalonadores.FCFS(processos,listsAndQueues);
@@ -102,14 +138,20 @@ public class SeuSO extends SO {
             proc.tempoProcesso++;
     }
 
-    private void addListaDispositivos() {
+    private void addListaDispositivos(PCB p) {
+        boolean achou = false;
         if(listsAndQueues.getDispositivos().isEmpty()) listsAndQueues.inicializaHashMap();
-
-        for(PCB p : processos) {
-            if(p.operacao < p.codigo.length && p.codigo[p.operacao] instanceof OperacaoES)
-                if(!(listsAndQueues.getDispositivo(((OperacaoES) p.codigo[p.operacao]).idDispositivo).contains(p.codigo[p.operacao])))
-                listsAndQueues.addOperacaoESHashMap(p);
+        if(p.operacao < p.codigo.length && p.codigo[p.operacao] instanceof OperacaoES) {
+            List<Dispositivos> dispositivo = listsAndQueues.getDispositivo(((OperacaoES) p.codigo[p.operacao]).idDispositivo);
+            for (Dispositivos disp : dispositivo) {
+                if (disp.processo.idProcesso == p.idProcesso) {
+                    achou = true;
+                    break;
+                }
+            }
         }
+            if(!achou)
+                listsAndQueues.addOperacaoESHashMap(p);
     }
 
     private void carregaRegistradoresVirtuais(Processador processador) {

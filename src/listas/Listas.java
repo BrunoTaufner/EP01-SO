@@ -51,7 +51,7 @@ public class Listas implements Comparable<PCB>{
 
     // ADD OPERAÇÃO NO DISPOSITIVO
     public void addOperacaoESHashMap(PCB pro) {
-        Dispositivos op = null;
+        Dispositivos op = new Dispositivos();
         if(pro.codigo[pro.operacao] instanceof OperacaoES) {
             op.op = (OperacaoES) pro.codigo[pro.operacao];
             op.processo = pro;
