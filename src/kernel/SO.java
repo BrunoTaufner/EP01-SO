@@ -128,10 +128,6 @@ public abstract class SO {
 		return processador;
 	}
 
-	public void incrementaContadorCiclos(){
-		(this.contadorCiclos)++;
-	}
-
 	protected abstract void criaProcesso(Operacao[] codigo);
 
 	protected abstract void trocaContexto(PCB pcbAtual, PCB pcbProximo);

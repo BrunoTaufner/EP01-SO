@@ -86,7 +86,7 @@ public class SeuSO extends SO {
     protected Operacao proximaOperacaoCPU() {
 
         Operacao op = null;
-        PCB p = new PCB();
+        PCB p;
         if (!processos.isEmpty()) {
             p = processos.get(0);
             if (p.operacao < p.codigo.length) {
@@ -137,7 +137,7 @@ public class SeuSO extends SO {
         if(processos.isEmpty()) return;
         switch (esc) {
             case FIRST_COME_FIRST_SERVED:
-                listas.Escalonadores.FCFS(processos,listsAndQueues);
+                listas.Escalonadores.FCFS(processos);
                 break;
             case SHORTEST_JOB_FIRST:
                 listas.Escalonadores.SJF(processos,listsAndQueues);

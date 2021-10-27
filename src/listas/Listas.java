@@ -62,10 +62,6 @@ public class Listas implements Comparable<PCB>{
 
     public void addListaTerminados(PCB processo) { terminados.add(processo); }
 
-    public void delFilaTarefas(){
-        if(!tarefas.isEmpty()) tarefas.poll();
-    }
-
     public void delFilaPronto(){
         if(!pronto.isEmpty()) pronto.poll();
     }

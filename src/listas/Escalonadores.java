@@ -3,12 +3,11 @@ package listas;
 import kernel.PCB;
 import operacoes.OperacaoES;
 
-import java.util.Collection;
 import java.util.List;
 
 public class Escalonadores {
 
-    public static void FCFS(List<PCB> processos, Listas listsAndQueues) {
+    public static void FCFS(List<PCB> processos) {
 
         for (PCB p : processos) {
 
@@ -19,13 +18,6 @@ public class Escalonadores {
             if(p.operacao < p.codigo.length && p.estado.equals((PCB.Estado.ESPERANDO)) && processos.indexOf(p) == 0 && !(p.codigo[p.operacao] instanceof OperacaoES)) {
                 p.estado = PCB.Estado.EXECUTANDO;
             }
-            if (p.estado.equals(PCB.Estado.TERMINADO)) {
-                if(!processos.isEmpty()) {
-                    p = processos.get(0);
-                }
-            }
-
-
         }
     }
 
