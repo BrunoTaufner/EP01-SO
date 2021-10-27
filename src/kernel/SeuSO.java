@@ -96,7 +96,7 @@ public class SeuSO extends SO {
             if (p.operacao < p.codigo.length) {
                 p.contadorDePrograma++;
                 if (p.codigo[p.operacao] instanceof Carrega || p.codigo[p.operacao] instanceof Soma) {
-                    if (p.estado.equals(PCB.Estado.EXECUTANDO) && !p.ESexecuting) {
+                    if (!p.ESexecuting && p.estado.equals(PCB.Estado.EXECUTANDO)) {
                         op = p.codigo[p.operacao];
                         p.operacao++;
                         return op;
@@ -204,8 +204,7 @@ public class SeuSO extends SO {
     @Override
     protected List<Integer> idProcessosEsperando() {
         List<Integer> id_ProcessosEsperando = new LinkedList<>();
-        Queue<PCB> tarefas = listsAndQueues.getTarefas();
-        for (PCB processo : tarefas) {
+        for (PCB processo : processos) {
             if (processo.estado.equals(PCB.Estado.ESPERANDO)) {
                 id_ProcessosEsperando.add(processo.idProcesso);
             }
