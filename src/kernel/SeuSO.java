@@ -47,30 +47,20 @@ public class SeuSO extends SO {
 
         OperacaoES op = null;
         List<Dispositivos> disp = listsAndQueues.getDispositivo(idDispositivo);
-        Dispositivos opES = new Dispositivos();
+        Dispositivos opES;
         if(disp.size() > 0) opES = disp.get(0);
-        boolean its_possible_to_executeES = true;
 
         for(PCB proc : processos) {
 
             if(proc.operacao < proc.codigo.length && proc.codigo[proc.operacao] instanceof OperacaoES && disp.isEmpty()) addListaDispositivos(proc);
 
-            if(!disp.isEmpty()) {
-                if (disp.size() > 0) break;
-                if (!proc.ESexecuting && !proc.equals(disp.get(0).processo)) {
-                    its_possible_to_executeES = false;
-                    break;
-                }
-                if(proc.equals(disp.get(0).processo)) {
-                    opES.processo.ESexecuting = true;
-                    break;
-                }
-            }
         }
 
         if(disp.isEmpty()) return op;
-
-        if(its_possible_to_executeES && processos.size() > 0 && opES.op.idDispositivo == idDispositivo && opES.processo.estado.equals(PCB.Estado.ESPERANDO)) {
+        opES = disp.get(0);
+        if(processos.size() > 0
+                && opES.op.idDispositivo == idDispositivo
+                && opES.processo.estado.equals(PCB.Estado.ESPERANDO)) {
             opES.processo.contadorDePrograma++;
             op = opES.op;
             if(opES.op.ciclos == 1)  {
@@ -88,12 +78,10 @@ public class SeuSO extends SO {
     protected Operacao proximaOperacaoCPU() {
 
         Operacao op = null;
-        PCB p;
-        if (!processos.isEmpty()) {
-            p = processos.get(0);
-            if (p.operacao < p.codigo.length) {
+        for(PCB p : processos) {
+            if (p.operacao < p.codigo.length && p.estado.equals(PCB.Estado.EXECUTANDO)) {
                 if (p.codigo[p.operacao] instanceof Carrega || p.codigo[p.operacao] instanceof Soma) {
-                    if (!p.ESexecuting && p.estado.equals(PCB.Estado.EXECUTANDO)) {
+                    if (!p.ESexecuting) {
                         op = p.codigo[p.operacao];
                         p.operacao++;
                         p.contadorDePrograma++;
@@ -108,7 +96,6 @@ public class SeuSO extends SO {
 
     @Override
     protected void executaCicloKernel() {
-        PCB ant = null;
         for (PCB p : processos) {
 
             // COLOCA O PROCESSO NA LISTA DE TERMINADOS
@@ -122,7 +109,7 @@ public class SeuSO extends SO {
             // PROXIMA OPERAÇÃO É DE ES
             if (p.operacao < p.codigo.length && p.codigo[p.operacao] instanceof OperacaoES) {
                 p.estado = PCB.Estado.ESPERANDO;
-                listsAndQueues.addListaEsperando(p);
+                if(!listsAndQueues.getEsperando().contains(p)) listsAndQueues.addListaEsperando(p);
             }
 
             // PROCESSO PRONTO, ENTÃO PROCESSO PASSA A SER EXECUTANDO
@@ -135,12 +122,12 @@ public class SeuSO extends SO {
 
             // PROCESSO ESPERANDO VAI PARA PRONTO
             if (p.estado.equals(PCB.Estado.ESPERANDO)
-                    && p.operacao < p.codigo.length && !(p.codigo[p.operacao] instanceof  OperacaoES)) {
+                    && p.operacao < p.codigo.length
+                    && !(p.codigo[p.operacao] instanceof  OperacaoES)) {
                 p.estado = PCB.Estado.PRONTO;
                 if(!CPUexecuting) p.estado = PCB.Estado.EXECUTANDO;
                 listsAndQueues.delListaEsperando(p);
-                Queue<PCB> prontos = listsAndQueues.getPronto();
-                prontos.add(p);
+                if(CPUexecuting)listsAndQueues.addFilaPronto(p);
             }
 
             // PROCESSO NOVO E CONTADOR DE PROGRAMA > 0, ENTÃO PROCESSO PASSA A SER PRONTO
@@ -149,7 +136,6 @@ public class SeuSO extends SO {
                 listsAndQueues.addFilaPronto(p);
                 listsAndQueues.delListaNovos(p);
             }
-            ant = p;
         }
         carregaRegistradoresVirtuais(getProcessador()); // vai para troca de contexto
         if(processos.isEmpty()) return;
@@ -218,9 +204,7 @@ public class SeuSO extends SO {
         List<Integer> id_ProcessosProntos = new LinkedList<>();
         Queue<PCB> pronto = listsAndQueues.getPronto();
         for (PCB processo : pronto) {
-            if (processo.estado.equals(PCB.Estado.PRONTO)) {
                 id_ProcessosProntos.add(processo.idProcesso);
-            }
         }
         return id_ProcessosProntos;
     }
