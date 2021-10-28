@@ -41,25 +41,30 @@ public abstract class SO {
 		System.out.println();
 		System.out.println("Ciclo: " + contadorCiclos);
 
-		if (idProcessoNovo() != null)
-			System.out.println("Processo novo: " + idProcessoNovo());
+		System.out.print("Processo novo: ");
+		for (Integer id : idProcessoNovo()) {
+			System.out.print(id + " ");
+		}
 
-		if (idProcessoExecutando() != null)
-			System.out.println("Processo executando: " + idProcessoExecutando());
+		System.out.print("\nProcesso executando: ");
 
-		System.out.print("Processos prontos: ");
+		for (Integer id : idProcessoExecutando()) {
+			System.out.print(id + " ");
+		}
+
+		System.out.print("\nProcessos prontos: ");
 
 		for (Integer id : idProcessosProntos()) {
 			System.out.print(id + " ");
 		}
 
-		System.out.print("Processos esperando: ");
+		System.out.print("\nProcessos esperando: ");
 
 		for (Integer id : idProcessosEsperando()) {
 			System.out.print(id + " ");
 		}
 
-		System.out.print("Processos terminados: ");
+		System.out.print("\nProcessos terminados: ");
 
 		for (Integer id : idProcessosTerminados()) {
 			System.out.print(id + " ");
@@ -141,11 +146,10 @@ public abstract class SO {
 
 	protected abstract boolean temTarefasPendentes();
 
-	protected abstract Integer idProcessoNovo();
+	protected abstract List<Integer> idProcessoNovo();
 
 	protected abstract List<Integer> idProcessosProntos();
-
-	protected abstract Integer idProcessoExecutando();
+	protected abstract List<Integer> idProcessoExecutando();
 
 	protected abstract List<Integer> idProcessosEsperando();
 

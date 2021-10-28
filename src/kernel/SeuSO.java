@@ -13,7 +13,8 @@ public class SeuSO extends SO {
 
     Escalonador esc;
     List<PCB> processos = new LinkedList<>();
-    Listas listsAndQueues = new Listas();
+    public static Listas listsAndQueues = new Listas();
+    public boolean CPUexecuting = false;
     int trocaContexto = 0;
 
     @Override
@@ -55,6 +56,7 @@ public class SeuSO extends SO {
             if(proc.operacao < proc.codigo.length && proc.codigo[proc.operacao] instanceof OperacaoES && disp.isEmpty()) addListaDispositivos(proc);
 
             if(!disp.isEmpty()) {
+                if (disp.size() > 0) break;
                 if (!proc.ESexecuting && !proc.equals(disp.get(0).processo)) {
                     its_possible_to_executeES = false;
                     break;
@@ -95,6 +97,7 @@ public class SeuSO extends SO {
                         op = p.codigo[p.operacao];
                         p.operacao++;
                         p.contadorDePrograma++;
+                        CPUexecuting = false;
                         return op;
                     }
                 }
@@ -110,6 +113,8 @@ public class SeuSO extends SO {
 
             // COLOCA O PROCESSO NA LISTA DE TERMINADOS
             if ((p.estado.equals(PCB.Estado.EXECUTANDO) || p.estado.equals(PCB.Estado.ESPERANDO)) && p.operacao >= p.codigo.length) {
+                p.estado = PCB.Estado.TERMINADO;
+                if(p.estado.equals(PCB.Estado.ESPERANDO)) listsAndQueues.delListaEsperando(p);
                 listsAndQueues.addListaTerminados(p);
                 processos.remove(p);
             }
@@ -117,12 +122,25 @@ public class SeuSO extends SO {
             // PROXIMA OPERAÇÃO É DE ES
             if (p.operacao < p.codigo.length && p.codigo[p.operacao] instanceof OperacaoES) {
                 p.estado = PCB.Estado.ESPERANDO;
+                listsAndQueues.addListaEsperando(p);
             }
 
-            // PROCESSO PRONTO E CONTADOR DE PROGRAMA > 1, ENTÃO PROCESSO PASSA A SER EXECUTANDO
-            if (p.estado.equals(PCB.Estado.PRONTO) && (ant == null || ant.ESexecuting) && idProcessoExecutando() == 0 && processos.indexOf(p) == 0) {
+            // PROCESSO PRONTO, ENTÃO PROCESSO PASSA A SER EXECUTANDO
+            if (p.operacao < p.codigo.length && !(p.codigo[p.operacao] instanceof OperacaoES) && !CPUexecuting
+                    && (p.estado.equals(PCB.Estado.EXECUTANDO) || p.estado.equals(PCB.Estado.PRONTO))) {
                 p.estado = PCB.Estado.EXECUTANDO;
+                CPUexecuting = true;
                 listsAndQueues.delFilaPronto();
+            }
+
+            // PROCESSO ESPERANDO VAI PARA PRONTO
+            if (p.estado.equals(PCB.Estado.ESPERANDO)
+                    && p.operacao < p.codigo.length && !(p.codigo[p.operacao] instanceof  OperacaoES)) {
+                p.estado = PCB.Estado.PRONTO;
+                if(!CPUexecuting) p.estado = PCB.Estado.EXECUTANDO;
+                listsAndQueues.delListaEsperando(p);
+                Queue<PCB> prontos = listsAndQueues.getPronto();
+                prontos.add(p);
             }
 
             // PROCESSO NOVO E CONTADOR DE PROGRAMA > 0, ENTÃO PROCESSO PASSA A SER PRONTO
@@ -184,15 +202,15 @@ public class SeuSO extends SO {
     }
 
     @Override
-    protected Integer idProcessoNovo() {
+    protected List<Integer>idProcessoNovo() {
         Queue<PCB> tarefas = listsAndQueues.getTarefas();
-        int i = 0;
+        List<Integer> id_ProcessosNovo = new LinkedList<>();
         for (PCB processo : tarefas) {
             if (processo.estado.equals(PCB.Estado.NOVO)) {
-                i++;
+                id_ProcessosNovo.add(processo.idProcesso);
             }
         }
-        return i;
+        return id_ProcessosNovo;
     }
 
     @Override
@@ -208,24 +226,22 @@ public class SeuSO extends SO {
     }
 
     @Override
-    protected Integer idProcessoExecutando() {
+    protected List<Integer> idProcessoExecutando() {
         Queue<PCB> tarefas = listsAndQueues.getTarefas();
-        int i = 0;
+        List<Integer> id_ProcessosExecutando = new LinkedList<>();
         for (PCB processo : tarefas) {
             if (processo.estado.equals(PCB.Estado.EXECUTANDO)) {
-                i++;
+                id_ProcessosExecutando.add(processo.idProcesso);
             }
         }
-        return i;
+        return id_ProcessosExecutando;
     }
 
     @Override
     protected List<Integer> idProcessosEsperando() {
         List<Integer> id_ProcessosEsperando = new LinkedList<>();
-        for (PCB processo : processos) {
-            if (processo.estado.equals(PCB.Estado.ESPERANDO)) {
-                id_ProcessosEsperando.add(processo.idProcesso);
-            }
+        for (PCB processo : listsAndQueues.getEsperando()) {
+            id_ProcessosEsperando.add(processo.idProcesso);
         }
         return id_ProcessosEsperando;
     }

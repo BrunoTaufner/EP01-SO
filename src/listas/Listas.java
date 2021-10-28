@@ -15,14 +15,28 @@ public class Listas implements Comparable<PCB>{
     List<PCB> novos = new LinkedList<>(); //FILA COM TODOS OS PROCESSOS QUE ESTÃO NOVOS
     List<PCB> terminados = new LinkedList<>(); //FILA DE TODOS OS PROCESSOS TERMINADOS
 
+    List<PCB> esperando = new LinkedList<>();
+
     HashMap<Integer,List<Dispositivos>> dispositivos = new HashMap<>(); //FILA COM TODOS OS PROCESSOS ESPERANDO POR UM DISPOSITIVO DE ENTRADA E SAÍDA
 
     public Listas(){
 
     }
 
+    public List<PCB> getEsperando() {
+        return esperando;
+    }
+
     public void addFilaTarefas(PCB processo){
         tarefas.add(processo);
+    }
+
+    public void addListaEsperando(PCB processo) {
+        esperando.add(processo);
+    }
+
+    public void delListaEsperando(PCB processo) {
+        esperando.remove(processo);
     }
 
     public void addFilaPronto(PCB processo){
@@ -87,6 +101,7 @@ public class Listas implements Comparable<PCB>{
     }
 
     public List<Dispositivos> getDispositivo(int index) {
+        if (SeuSO.listsAndQueues.dispositivos.isEmpty()) inicializaHashMap();
         return dispositivos.get(index);
     }
 

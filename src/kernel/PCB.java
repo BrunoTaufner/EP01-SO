@@ -13,15 +13,15 @@ public class PCB {
 	public enum Estado {NOVO, PRONTO, EXECUTANDO, ESPERANDO, TERMINADO}
 	public int idProcesso; // primeiro processo criado deve ter id = 0
 	public Estado estado = Estado.NOVO;
-	public int[] registradores = new int[5];
-	public int contadorDePrograma = 0;
 	public Operacao[] codigo;
 	public int operacao = 0;
 	public boolean ESexecuting = false;
-
-	public int instanteChegada = 0;
+	public int contadorDePrograma = 0;
 	public int tempoProcesso = 0;
+	public int instanteChegada = 0;
 	public int espera = 0; // tempo de espera do processo
+	public int[] registradores = new int[5];
+
 	/*
 	public int proxChuteTamBurstCPU; //GUSTAVO COLOCOU ESSE TROÇO AQUI, PARA O ESCALONADOR LÁ, ESQUECI O NOME
 	public int contadorBurst = 0;
