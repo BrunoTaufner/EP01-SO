@@ -16,6 +16,7 @@ public class PCB {
 	public Operacao[] codigo;
 	public int operacao = 0;
 	public boolean ESexecuting = false;
+	public int readyinstant = -1;
 	public int contadorDePrograma = 0;
 	public int tempoProcesso = 0;
 	public int instanteChegada = 0;

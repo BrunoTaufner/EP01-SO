@@ -29,11 +29,6 @@ public class SeuSO extends SO {
         processos.get(processos.size() - 1).instanteChegada = getContadorCiclos();
         listsAndQueues.addFilaNovo(proc);
         listsAndQueues.addFilaTarefas(proc);
-        addListaDispositivos(proc);
-        if(proc.codigo[0] instanceof OperacaoES) {
-            proc.estado = PCB.Estado.ESPERANDO;
-            listsAndQueues.delListaNovos(proc);
-        }
     }
 
     @Override
@@ -48,7 +43,6 @@ public class SeuSO extends SO {
         OperacaoES op = null;
         List<Dispositivos> disp = listsAndQueues.getDispositivo(idDispositivo);
         Dispositivos opES;
-        if(disp.size() > 0) opES = disp.get(0);
 
         for(PCB proc : processos) {
 
@@ -99,40 +93,50 @@ public class SeuSO extends SO {
         for (PCB p : processos) {
 
             // COLOCA O PROCESSO NA LISTA DE TERMINADOS
-            if ((p.estado.equals(PCB.Estado.EXECUTANDO) || p.estado.equals(PCB.Estado.ESPERANDO)) && p.operacao >= p.codigo.length) {
+            if ((p.estado.equals(PCB.Estado.EXECUTANDO) || p.estado.equals(PCB.Estado.ESPERANDO))
+                    && p.operacao >= p.codigo.length) {
                 p.estado = PCB.Estado.TERMINADO;
                 if(p.estado.equals(PCB.Estado.ESPERANDO)) listsAndQueues.delListaEsperando(p);
                 listsAndQueues.addListaTerminados(p);
                 processos.remove(p);
             }
 
-            // PROXIMA OPERAÇÃO É DE ES
-            if (p.operacao < p.codigo.length && p.codigo[p.operacao] instanceof OperacaoES) {
+            // PROXIMA OPERAÇÃO É DE ES, COLOCA PROCESSO PARA ESPERANDO
+            else if (p.operacao < p.codigo.length
+                    && p.codigo[p.operacao] instanceof OperacaoES
+                    && !p.estado.equals(PCB.Estado.ESPERANDO)) {
                 p.estado = PCB.Estado.ESPERANDO;
                 if(!listsAndQueues.getEsperando().contains(p)) listsAndQueues.addListaEsperando(p);
             }
 
             // PROCESSO PRONTO, ENTÃO PROCESSO PASSA A SER EXECUTANDO
-            if (p.operacao < p.codigo.length && !(p.codigo[p.operacao] instanceof OperacaoES) && !CPUexecuting
-                    && (p.estado.equals(PCB.Estado.EXECUTANDO) || p.estado.equals(PCB.Estado.PRONTO))) {
+            // TODO- UM -CICLO- PARA IR PARA EXECUTANDO
+            else if (p.operacao < p.codigo.length
+                    && (p.estado.equals(PCB.Estado.PRONTO))
+                    && !(p.codigo[p.operacao] instanceof OperacaoES)
+                    && !CPUexecuting
+                    && p.readyinstant > 0
+                    && p.readyinstant == p.tempoProcesso - 1) {
                 p.estado = PCB.Estado.EXECUTANDO;
                 CPUexecuting = true;
                 listsAndQueues.delFilaPronto();
+                p.readyinstant = -1;
             }
 
             // PROCESSO ESPERANDO VAI PARA PRONTO
-            if (p.estado.equals(PCB.Estado.ESPERANDO)
-                    && p.operacao < p.codigo.length
+            else if (p.estado.equals(PCB.Estado.ESPERANDO)
                     && !(p.codigo[p.operacao] instanceof  OperacaoES)) {
                 p.estado = PCB.Estado.PRONTO;
-                if(!CPUexecuting) p.estado = PCB.Estado.EXECUTANDO;
+                p.readyinstant = p.tempoProcesso;
                 listsAndQueues.delListaEsperando(p);
+                if(!CPUexecuting) p.estado = PCB.Estado.EXECUTANDO;
                 if(CPUexecuting)listsAndQueues.addFilaPronto(p);
             }
 
             // PROCESSO NOVO E CONTADOR DE PROGRAMA > 0, ENTÃO PROCESSO PASSA A SER PRONTO
-            if (p.estado.equals(PCB.Estado.NOVO) && p.tempoProcesso > 0) {
+            else if (p.estado.equals(PCB.Estado.NOVO) && p.tempoProcesso > 0) {
                 p.estado = PCB.Estado.PRONTO;
+                p.readyinstant = p.tempoProcesso;
                 listsAndQueues.addFilaPronto(p);
                 listsAndQueues.delListaNovos(p);
             }
