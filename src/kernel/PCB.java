@@ -18,6 +18,8 @@ public class PCB {
 	public int tempoProcesso = 0;
 	public int instanteChegada = 0;
 	public int espera = 0; // tempo de espera do processo
+	public int resposta = -1; // tempo de resposta
+	public int retorno = 0; // tempo de retorno
 	public int[] registradores = new int[5];
 
 	/*

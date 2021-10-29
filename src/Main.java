@@ -13,7 +13,7 @@ public class Main {
 		/*escalonadores.add(SO.Escalonador.SHORTEST_JOB_FIRST);
 		escalonadores.add(SO.Escalonador.SHORTEST_REMANING_TIME_FIRST);
 		escalonadores.add(SO.Escalonador.ROUND_ROBIN_QUANTUM_5);*/
-		String arq = "C:\\Users\\bruno\\Documents\\GitHub\\EP1 SO\\EP01-SO\\entradas\\teste2000.txt";
+		String arq = "C:\\Users\\bruno\\Documents\\GitHub\\EP1 SO\\EP01-SO\\entradas\\teste16.txt";
 		for(Escalonador esc : escalonadores) {
 			SO so = new SeuSO();
 			so.defineEscalonador(esc);
