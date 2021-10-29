@@ -11,7 +11,7 @@ import java.util.Queue;
 public class Listas implements Comparable<PCB>{
 
     Queue<PCB> tarefas = new LinkedList<>(); //FILA COM TODOS OS PROCESSOS DO SISTEMA
-    Queue<PCB> pronto = new LinkedList<>(); //FILA COM TODOS OS PROCESSOS QUE ESTÃO PRONTOS
+    List<PCB> pronto = new LinkedList<>(); //FILA COM TODOS OS PROCESSOS QUE ESTÃO PRONTOS
     List<PCB> novos = new LinkedList<>(); //FILA COM TODOS OS PROCESSOS QUE ESTÃO NOVOS
     List<PCB> terminados = new LinkedList<>(); //FILA DE TODOS OS PROCESSOS TERMINADOS
 
@@ -64,7 +64,7 @@ public class Listas implements Comparable<PCB>{
 
 
     // ADD OPERAÇÃO NO DISPOSITIVO
-    public void addOperacaoESHashMap(PCB pro) {
+    public void addOperacaoES(PCB pro) {
         Dispositivos op = new Dispositivos();
         if(pro.codigo[pro.operacao] instanceof OperacaoES) {
             op.op = (OperacaoES) pro.codigo[pro.operacao];
@@ -76,8 +76,8 @@ public class Listas implements Comparable<PCB>{
 
     public void addListaTerminados(PCB processo) { terminados.add(processo); }
 
-    public void delFilaPronto(){
-        if(!pronto.isEmpty()) pronto.poll();
+    public void delListaPronto(PCB processo){
+        if(!pronto.isEmpty()) pronto.remove(processo);
     }
 
     public void delListaNovos(PCB processo) {
@@ -88,7 +88,7 @@ public class Listas implements Comparable<PCB>{
         return tarefas;
     }
 
-    public Queue<PCB> getPronto() {
+    public List<PCB> getPronto() {
         return pronto;
     }
 
