@@ -24,6 +24,21 @@ public abstract class SO {
 		SHORTEST_REMANING_TIME_FIRST, // preemptivo (média exponencial comecando em 5)
 		ROUND_ROBIN_QUANTUM_5 // preemptivo
 	}
+	public void simula() {
+		while (!novosProcessos.isEmpty() || temTarefasPendentes()) {
+			Operacao[] codigo = novosProcessos.get(contadorCiclos);
+
+			if (codigo != null) {
+				novosProcessos.remove(contadorCiclos);
+				criaProcesso(codigo);
+			}
+
+			executaUmCiclo();
+			imprimeEstado();
+		}
+
+		imprimeEstatisticas();
+	}
 
 	private void imprimeEstatisticas() {
 		System.out.println();
