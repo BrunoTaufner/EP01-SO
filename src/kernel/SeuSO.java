@@ -111,7 +111,6 @@ public class SeuSO extends SO {
 
                 // PROCESSO PRONTO
                 if(p.estado.equals(PCB.Estado.PRONTO)) {
-                    p.espera++;
                     // PRONTO PARA EXECUTANDO
                     if(!CPUexecuting && !(p.codigo[p.operacao] instanceof OperacaoES) && listsAndQueues.getPronto().get(0).equals(p)) {
                         p.estado = PCB.Estado.EXECUTANDO;
