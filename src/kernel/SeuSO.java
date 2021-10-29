@@ -43,18 +43,10 @@ public class SeuSO extends SO {
         if(CPUexecuting) return null;
         OperacaoES op = null;
         List<Dispositivos> disp = listsAndQueues.getDispositivo(idDispositivo);
-        Dispositivos opES;
-
-        for(PCB proc : processos) {
-
-            if(proc.operacao < proc.codigo.length && proc.codigo[proc.operacao] instanceof OperacaoES && disp.isEmpty()) addListaDispositivos(proc);
-
-        }
-
         if(disp.isEmpty()) return op;
-        opES = disp.get(0);
-        if(processos.size() > 0
-                && opES.op.idDispositivo == idDispositivo
+
+        Dispositivos opES = disp.get(0);
+        if(opES.op.idDispositivo == idDispositivo
                 && opES.processo.estado.equals(PCB.Estado.ESPERANDO)) {
             opES.processo.contadorDePrograma++;
             op = opES.op;
@@ -73,9 +65,11 @@ public class SeuSO extends SO {
     protected Operacao proximaOperacaoCPU() {
 
         Operacao op = null;
-        for(PCB p : processos) {
-            if (p.operacao < p.codigo.length && p.estado.equals(PCB.Estado.EXECUTANDO)) {
-                if (p.codigo[p.operacao] instanceof Carrega || p.codigo[p.operacao] instanceof Soma) {
+
+        if(!processos.isEmpty()){
+            PCB p = processos.get(0);
+            if (p.estado.equals(PCB.Estado.EXECUTANDO)) {
+                if(p.codigo[p.operacao] instanceof Carrega || p.codigo[p.operacao] instanceof Soma) {
                     if (!p.ESexecuting) {
                         op = p.codigo[p.operacao];
                         p.operacao++;
@@ -103,6 +97,11 @@ public class SeuSO extends SO {
                 p.estado = PCB.Estado.TERMINADO;
                 listsAndQueues.addListaTerminados(p);
                 processos.remove(p);
+                if(!processos.isEmpty()) {
+                    p = processos.get(0);
+                    i = -1;
+                }
+                int x = 0;
             }
             else {
                 // PROCESSO NOVO
@@ -140,6 +139,7 @@ public class SeuSO extends SO {
                 }
                 // PROCESSO ESPERANDO
                 else if(p.estado.equals(PCB.Estado.ESPERANDO)) {
+                    if(p.codigo[p.operacao] instanceof OperacaoES) addListaDispositivos(p);
                     // ESPERANDO PARA EXECUTANDO
                     if(!(p.codigo[p.operacao] instanceof OperacaoES) && !CPUexecuting && processos.get(0).equals(p)) {
                         listsAndQueues.delListaEsperando(p);
