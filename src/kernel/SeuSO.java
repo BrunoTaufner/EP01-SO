@@ -136,14 +136,15 @@ public class SeuSO extends SO {
                 }
                 // PROCESSO ESPERANDO
                 else if(p.estado.equals(PCB.Estado.ESPERANDO)) {
-                    listsAndQueues.delListaEsperando(p);
                     // ESPERANDO PARA EXECUTANDO
                     if(!(p.codigo[p.operacao] instanceof OperacaoES) && !CPUexecuting && processos.get(0).equals(p)) {
+                        listsAndQueues.delListaEsperando(p);
                         p.estado = PCB.Estado.EXECUTANDO;
                         CPUexecuting = true;
                     }
                     // ESPERANDO PARA PRONTO
                     else if(!(p.codigo[p.operacao] instanceof OperacaoES) && CPUexecuting) {
+                        listsAndQueues.delListaEsperando(p);
                         p.estado = PCB.Estado.PRONTO;
                         listsAndQueues.addFilaPronto(p);
                     }
