@@ -40,6 +40,7 @@ public class SeuSO extends SO {
     // Assuma que 0 <= idDispositivo <= 4
     protected OperacaoES proximaOperacaoES(int idDispositivo) {
 
+        if(CPUexecuting) return null;
         OperacaoES op = null;
         List<Dispositivos> disp = listsAndQueues.getDispositivo(idDispositivo);
         Dispositivos opES;
@@ -90,15 +91,17 @@ public class SeuSO extends SO {
 
     @Override
     protected void executaCicloKernel() {
-        for (PCB p : processos) {
 
+        for (int i = 0; i < processos.size(); i++) {
+            PCB p = processos.get(i);
             // PROCESSO TERMINADO
-            if(p.operacao > p.codigo.length) {
+            if(p.operacao >= p.codigo.length) {
                 if(p.estado.equals(PCB.Estado.NOVO))
                     listsAndQueues.delListaNovos(p);
                 else if(p.estado.equals(PCB.Estado.ESPERANDO))
                     listsAndQueues.delListaEsperando(p);
                 p.estado = PCB.Estado.TERMINADO;
+                listsAndQueues.addListaTerminados(p);
                 processos.remove(p);
             }
             else {
@@ -111,18 +114,19 @@ public class SeuSO extends SO {
 
                 // PROCESSO PRONTO
                 if(p.estado.equals(PCB.Estado.PRONTO)) {
-                    listsAndQueues.delListaPronto(p);
                     // PRONTO PARA EXECUTANDO
                     if(!CPUexecuting && !(p.codigo[p.operacao] instanceof OperacaoES)
                             && processos.get(0).equals(p)) {
                         p.estado = PCB.Estado.EXECUTANDO;
                         CPUexecuting = true;
+                        listsAndQueues.delListaPronto(p);
                     }
                     // PRONTO PARA ESPERANDO
                     else if(p.codigo[p.operacao] instanceof OperacaoES) {
                         p.estado = PCB.Estado.ESPERANDO;
                         listsAndQueues.addListaEsperando(p);
                         addListaDispositivos(p);
+                        listsAndQueues.delListaPronto(p);
                     }
                 }
                 // PROCESSO EXECUTANDO
@@ -143,7 +147,7 @@ public class SeuSO extends SO {
                         CPUexecuting = true;
                     }
                     // ESPERANDO PARA PRONTO
-                    else if(!(p.codigo[p.operacao] instanceof OperacaoES) && CPUexecuting) {
+                    else if(!(p.codigo[p.operacao] instanceof OperacaoES)) {
                         listsAndQueues.delListaEsperando(p);
                         p.estado = PCB.Estado.PRONTO;
                         listsAndQueues.addFilaPronto(p);

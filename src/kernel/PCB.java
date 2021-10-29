@@ -8,15 +8,12 @@ public class PCB {
 	PRONTO = próximo ciclo de programa (depois do NOVO) <<< AQUI ESCOLHEMOS O ESCALONADOR
 	 */
 
-
-
 	public enum Estado {NOVO, PRONTO, EXECUTANDO, ESPERANDO, TERMINADO}
 	public int idProcesso; // primeiro processo criado deve ter id = 0
 	public Estado estado = Estado.NOVO;
 	public Operacao[] codigo;
 	public int operacao = 0;
 	public boolean ESexecuting = false;
-	public int readyinstant = -1;
 	public int contadorDePrograma = 0;
 	public int tempoProcesso = 0;
 	public int instanteChegada = 0;
