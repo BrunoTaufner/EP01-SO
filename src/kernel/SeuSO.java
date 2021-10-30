@@ -50,6 +50,7 @@ public class SeuSO extends SO {
                 && opES.processo.estado.equals(PCB.Estado.ESPERANDO)) {
             opES.processo.contadorDePrograma++;
             op = opES.op;
+            opES.processo.contadorBurst++;
             if(opES.op.ciclos == 1)  {
                 opES.processo.ESexecuting = false;
                 opES.processo.operacao++;
@@ -73,8 +74,10 @@ public class SeuSO extends SO {
                         op = p.codigo[p.operacao];
                         p.operacao++;
                         p.contadorDePrograma++;
+                        p.contadorBurst++;
                         if(p.operacao >= p.codigo.length || p.codigo[p.operacao] instanceof OperacaoES) {
                             CPUexecuting = false;
+                            p.cicloBurst++;
                         }
                         return op;
                     }
@@ -100,6 +103,7 @@ public class SeuSO extends SO {
                 p.retorno = getContadorCiclos() - p.idProcesso;
                 processos.remove(p);
                 if(!processos.isEmpty()) i = -1;
+                p.calculaTamanhoBurst();
             }
             else {
                 // PROCESSO NOVO
@@ -165,8 +169,11 @@ public class SeuSO extends SO {
                 break;
         }
         for(PCB proc : processos){
-            if(proc.estado.equals((PCB.Estado.PRONTO))) proc.espera++;
-            if(proc.estado.equals(PCB.Estado.EXECUTANDO) && proc.resposta == -1) proc.resposta = proc.tempoProcesso;
+            if(proc.estado.equals((PCB.Estado.PRONTO))) {
+                proc.espera++;
+                if(!proc.executed) proc.resposta++;
+            }
+            if(proc.estado.equals(PCB.Estado.EXECUTANDO) && !proc.executed) proc.executed = true;
             proc.tempoProcesso++;
         }
 
@@ -268,6 +275,7 @@ public class SeuSO extends SO {
     protected int tempoRespostaMedio() {
         int soma = 0;
         for (PCB p : listsAndQueues.getTarefas()) {
+            //System.out.println("id: "+ p.idProcesso +"\t resposta: "+ p.resposta);
             soma += p.resposta;
         }
         return soma/listsAndQueues.getTarefas().size();
@@ -277,6 +285,7 @@ public class SeuSO extends SO {
     protected int tempoRetornoMedio() {
         int soma = 0;
         for (PCB p : listsAndQueues.getTarefas()) {
+            //System.out.println("id: "+ p.idProcesso +"\t retorno: "+ p.retorno);
             soma += p.retorno;
         }
         return soma/listsAndQueues.getTarefas().size();

@@ -8,7 +8,8 @@ public class PCB {
 	PRONTO = próximo ciclo de programa (depois do NOVO) <<< AQUI ESCOLHEMOS O ESCALONADOR
 	 */
 
-	public enum Estado {NOVO, PRONTO, EXECUTANDO, ESPERANDO, TERMINADO}
+
+	public enum Estado {NOVO, PRONTO, EXECUTANDO, ESPERANDO, TERMINADO;}
 	public int idProcesso; // primeiro processo criado deve ter id = 0
 	public Estado estado = Estado.NOVO;
 	public Operacao[] codigo;
@@ -18,13 +19,20 @@ public class PCB {
 	public int tempoProcesso = 0;
 	public int instanteChegada = 0;
 	public int espera = 0; // tempo de espera do processo
-	public int resposta = -1; // tempo de resposta
+	public int resposta = 0; // tempo de resposta
 	public int retorno = 0; // tempo de retorno
+	public boolean executed = false;
 	public int[] registradores = new int[5];
-
-	/*
-	public int proxChuteTamBurstCPU; //GUSTAVO COLOCOU ESSE TROÇO AQUI, PARA O ESCALONADOR LÁ, ESQUECI O NOME
 	public int contadorBurst = 0;
+	public int cicloBurst = 0;
+	public int tamanhoBurst = 0;
+	public int proxChuteTamBurstCPU ; //GUSTAVO COLOCOU ESSE TROÇO AQUI, PARA O ESCALONADOR LÁ, ESQUECI O NOME
+
+	public void calculaTamanhoBurst() {
+
+		this.tamanhoBurst = 0;
+	}
+	/*
 	public int contadorCiclos = 0; //Para Round Robin
 	public int remainingTime; // Shortest Job First
 
@@ -32,7 +40,5 @@ public class PCB {
 	public int resposta = 0; // tempo para espera até executar a primeira execução
 	*/
 	// SHORTEST JOB FIRST ORDENAR LISTA DE PROCESSOS E PEGAR O PRIMEIRO PROCESSO
-
-
 
 }
