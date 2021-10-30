@@ -1,7 +1,6 @@
 package listas;
 
 import kernel.PCB;
-import operacoes.OperacaoES;
 
 import java.util.List;
 
@@ -9,8 +8,10 @@ public class Escalonadores {
 
 
     public static void SJF(List<PCB> processos) {
-
-        processos.sort(new SortIdProcesso());
-
+        int burstAnt = 5;
+        for(PCB p : processos) {
+            if(p.cicloBurst > 0) burstAnt = p.calculaTamanhoBurst(burstAnt);
+        }
+        processos.sort(new SortBurst());
     }
 }

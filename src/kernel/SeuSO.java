@@ -12,16 +12,16 @@ import operacoes.Soma;
 public class SeuSO extends SO {
 
     Escalonador esc;
-    List<PCB> processos = new LinkedList<>();
+
+    public static List<PCB> processos = new LinkedList<>();
+
     public static Listas listsAndQueues = new Listas();
     public boolean CPUexecuting = false;
     int trocaContexto = 0;
-
     @Override
     // ATENÇÃO: cria o processo mas o mesmo
     // só estará "pronto" no próximo ciclo
     protected void criaProcesso(Operacao[] codigo) {
-
         PCB proc = new PCB();
         proc.codigo = codigo;
         proc.idProcesso = getContadorCiclos();
@@ -50,8 +50,7 @@ public class SeuSO extends SO {
                 && opES.processo.estado.equals(PCB.Estado.ESPERANDO)) {
             opES.processo.contadorDePrograma++;
             op = opES.op;
-            opES.processo.contadorBurst++;
-            if(opES.op.ciclos == 1)  {
+            if(opES.op.ciclos == 1) {
                 opES.processo.ESexecuting = false;
                 opES.processo.operacao++;
                 disp.remove(opES);
@@ -74,7 +73,7 @@ public class SeuSO extends SO {
                         op = p.codigo[p.operacao];
                         p.operacao++;
                         p.contadorDePrograma++;
-                        p.contadorBurst++;
+                        if(p.cicloBurst == 0) p.contadorBurst++;
                         if(p.operacao >= p.codigo.length || p.codigo[p.operacao] instanceof OperacaoES) {
                             CPUexecuting = false;
                             p.cicloBurst++;
@@ -103,7 +102,7 @@ public class SeuSO extends SO {
                 p.retorno = getContadorCiclos() - p.idProcesso;
                 processos.remove(p);
                 if(!processos.isEmpty()) i = -1;
-                p.calculaTamanhoBurst();
+
             }
             else {
                 // PROCESSO NOVO
@@ -265,6 +264,7 @@ public class SeuSO extends SO {
     protected int tempoEsperaMedio() {
         int x = 0;
         for(PCB proc : listsAndQueues.getTarefas()) {
+            System.out.println("id: " + proc.idProcesso + "\tbursts: " + proc.contadorBurst + "\t tamBursts: " + proc.tamanhoBurst);
             x += proc.espera;
         }
         if(listsAndQueues.getTarefas().size() == 0) return 0;

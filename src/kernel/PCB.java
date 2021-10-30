@@ -28,9 +28,10 @@ public class PCB {
 	public int tamanhoBurst = 0;
 	public int proxChuteTamBurstCPU ; //GUSTAVO COLOCOU ESSE TROÇO AQUI, PARA O ESCALONADOR LÁ, ESQUECI O NOME
 
-	public void calculaTamanhoBurst() {
 
-		this.tamanhoBurst = 0;
+	public int calculaTamanhoBurst(int burstAnt) {
+		this.tamanhoBurst = (contadorBurst + burstAnt) / 2;
+		return this.tamanhoBurst;
 	}
 	/*
 	public int contadorCiclos = 0; //Para Round Robin
