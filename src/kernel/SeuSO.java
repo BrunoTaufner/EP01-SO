@@ -264,7 +264,7 @@ public class SeuSO extends SO {
     protected int tempoEsperaMedio() {
         int x = 0;
         for(PCB proc : listsAndQueues.getTarefas()) {
-            System.out.println("id: " + proc.idProcesso + "\tbursts: " + proc.contadorBurst + "\t tamBursts: " + proc.tamanhoBurst);
+            System.out.println("id: " + proc.idProcesso + "\tbursts: " + proc.contadorBurst + "\t tamBursts: " + proc.tempoBurst);
             x += proc.espera;
         }
         if(listsAndQueues.getTarefas().size() == 0) return 0;

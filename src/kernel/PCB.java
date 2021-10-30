@@ -25,13 +25,11 @@ public class PCB {
 	public int[] registradores = new int[5];
 	public int contadorBurst = 0;
 	public int cicloBurst = 0;
-	public int tamanhoBurst = 0;
-	public int proxChuteTamBurstCPU ; //GUSTAVO COLOCOU ESSE TROÇO AQUI, PARA O ESCALONADOR LÁ, ESQUECI O NOME
+	public int tempoBurst = 0;
 
-
-	public int calculaTamanhoBurst(int burstAnt) {
-		this.tamanhoBurst = (contadorBurst + burstAnt) / 2;
-		return this.tamanhoBurst;
+	public int calculaTamanhoBurst(int chute) {
+		int proximoChute = (contadorBurst + chute) / 2;
+		return proximoChute;
 	}
 	/*
 	public int contadorCiclos = 0; //Para Round Robin
