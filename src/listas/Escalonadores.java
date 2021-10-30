@@ -6,16 +6,16 @@ import java.util.List;
 
 public class Escalonadores {
 
-    public static void SJF(List<PCB> processos) {
-        int proximoChute = 5;
-        boolean primeira = true;
+    public static void SJF(List<PCB> processos, Listas listsAndQueues) {
         for(PCB p : processos) {
-            if(!primeira) p.tempoBurst = proximoChute;
-            proximoChute = p.calculaTamanhoBurst(proximoChute);
-            primeira = false;
-
+            if(p.cicloBurst > 0) {
+                p.tempoBurst  = p.calculaTamanhoBurst(p.tempoBurst);
+                if(!p.executouBurstInicial) p.executouBurstInicial = true;
+                p.cicloBurst = 0;
+                p.contadorBurst = 0;
+            }
         }
-        processos.sort(new SortBurst());
+        listsAndQueues.getPronto().sort(new SortBurst());
     }
 
 }

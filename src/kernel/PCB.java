@@ -25,7 +25,8 @@ public class PCB {
 	public int[] registradores = new int[5];
 	public int contadorBurst = 0;
 	public int cicloBurst = 0;
-	public int tempoBurst = 0;
+	public int tempoBurst = 5;
+	public boolean executouBurstInicial = false;
 
 	public int calculaTamanhoBurst(int chute) {
 		int proximoChute = (contadorBurst + chute) / 2;
