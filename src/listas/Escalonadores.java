@@ -8,8 +8,6 @@ import java.util.List;
 
 public class Escalonadores {
 
-    SeuSO sistema = new SeuSO();
-
     public static void SJF(List<PCB> processos, Listas listsAndQueues) {
         for(PCB p : processos) {
             if(p.cicloBurst > 0) {
@@ -44,7 +42,7 @@ public class Escalonadores {
             for(PCB p : procsCPU) {
                 if(p.estado.equals(PCB.Estado.EXECUTANDO)) executando = p;
             }
-            contexto.trocaContexto(executando, procsCPU.get(0));
+            contexto.trocaContexto(procsCPU.get(0), executando);
         }
     }
 
@@ -53,14 +51,14 @@ public class Escalonadores {
         for(PCB p : processos) {
             if(p.estado.equals(PCB.Estado.EXECUTANDO)){
                 // CASO TERMINOU OS 5 CICLOS
-                if(p.contadorCiclos == 4) {
+                if(p.contadorCiclos == 5) {
                     if(p.operacao < p.codigo.length && !(p.codigo[p.operacao] instanceof OperacaoES)) {
                         if(listsAndQueues.getPronto().size() > 0){
                             so.trocaContexto(p,listsAndQueues.getPronto().get(0));
+                            p.contadorCiclos = 0;
                         }
                     }
                 }
-                p.contadorCiclos = 0;
             }
         }
     }

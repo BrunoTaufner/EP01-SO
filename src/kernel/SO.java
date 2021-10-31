@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 
+import listas.Escalonadores;
+import listas.SortBurst;
+import listas.SortIdProcesso;
 import operacoes.Carrega;
 import operacoes.Operacao;
 import operacoes.OperacaoES;
@@ -84,7 +87,11 @@ public abstract class SO {
 		for (Integer id : idProcessosTerminados()) {
 			System.out.print(id + " ");
 		}
-
+		//SeuSO.listsAndQueues.getTarefas().sort(new SortBurst());
+		System.out.println();
+		for(PCB p : SeuSO.listsAndQueues.getTarefas()) {
+			System.out.println("id"+p.idProcesso+" i:"+p.operacao+" Tempo: "+p.tempoBurst+" Est: "+p.estimativaBurst+" ult: "+p.ult+" cont: "+p.contadorBurst+p.fimBurstOperacaoES);
+		}
 	}
 
 	private void executaUmCiclo() {

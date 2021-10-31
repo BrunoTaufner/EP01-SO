@@ -118,6 +118,11 @@ public class SeuSO extends SO {
                 escalonadores();
                 PCB p = processos.get(i);
                 if (p.estado.equals(estado)) {
+                    System.out.print(trocaContexto+" "+estado+": ");
+                    for(PCB pr : listsAndQueues.getProcessosCPU()){
+                        System.out.print(pr.idProcesso+" ");
+                    }
+                    System.out.println();
                     // PROCESSO TERMINADO
                     if (p.operacao >= p.codigo.length) {
                         if (p.estado.equals(PCB.Estado.NOVO)) {
@@ -133,7 +138,6 @@ public class SeuSO extends SO {
                         listsAndQueues.addListaTerminados(p);
                         p.retorno = getContadorCiclos() - p.idProcesso;
                         processos.remove(p);
-                        if (!processos.isEmpty()) i = -1;
 
                     } else {
                         // PROCESSO NOVO
@@ -169,6 +173,7 @@ public class SeuSO extends SO {
                                 listsAndQueues.addListaEsperando(p);
                                 addListaDispositivos(p);
                                 listsAndQueues.delListaProcessosCPU(p);
+                                p.contadorCiclos = 0;
                             }
                         }
                         // PROCESSO ESPERANDO
@@ -322,15 +327,7 @@ public class SeuSO extends SO {
         }
         if(listsAndQueues.getTarefas().size() == 0) return 0;
         int size = listsAndQueues.getTarefas().size();
-        if(processos.isEmpty()) {
-            listsAndQueues.getTarefas().clear();
-            listsAndQueues.getDispositivos().clear();
-            listsAndQueues.getTerminados().clear();
-            listsAndQueues.getEsperando().clear();
-            listsAndQueues.getPronto().clear();
-            listsAndQueues.getNovos().clear();
-            listsAndQueues.getProcessosCPU().clear();
-        }
+
         return x/size;
     }
 
@@ -359,13 +356,13 @@ public class SeuSO extends SO {
 
     @Override
     public void defineEscalonador(Escalonador e) {
-        listsAndQueues.getProcessosCPU().clear();
+        /*listsAndQueues.getProcessosCPU().clear();
         listsAndQueues.getNovos().clear();
         listsAndQueues.getPronto().clear();
         listsAndQueues.getTarefas().clear();
         listsAndQueues.getEsperando().clear();
         listsAndQueues.getTerminados().clear();
-        listsAndQueues.getDispositivos().clear();
+        listsAndQueues.getDispositivos().clear();*/
         trocaContexto = 0;
         esc = e;
     }
