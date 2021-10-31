@@ -353,13 +353,13 @@ public class SeuSO extends SO {
 
     @Override
     public void defineEscalonador(Escalonador e) {
-        /*listsAndQueues.getProcessosCPU().clear();
+        listsAndQueues.getProcessosCPU().clear();
         listsAndQueues.getNovos().clear();
         listsAndQueues.getPronto().clear();
         listsAndQueues.getTarefas().clear();
         listsAndQueues.getEsperando().clear();
         listsAndQueues.getTerminados().clear();
-        listsAndQueues.getDispositivos().clear();*/
+        listsAndQueues.getDispositivos().clear();
         trocaContexto = 0;
         esc = e;
     }
