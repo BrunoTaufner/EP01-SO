@@ -52,7 +52,7 @@ public class Listas implements Comparable<PCB>{
         esperando.remove(processo);
     }
 
-    public void addFilaPronto(PCB processo){
+    public void addListaPronto(PCB processo){
         pronto.add(processo);
     }
 

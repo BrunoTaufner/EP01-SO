@@ -84,10 +84,10 @@ public abstract class SO {
 		for (Integer id : idProcessosTerminados()) {
 			System.out.print(id + " ");
 		}
-		System.out.println();
+		/*System.out.println();
 		for(PCB proc : SeuSO.listsAndQueues.getTarefas()) {
 		System.out.println("id: " + proc.idProcesso + "\ti: " + proc.operacao + "\test: " + proc.estimativaBurst + "\t tamB: " + proc.tempoBurst + "\tbursts: " + proc.contadorBurst + proc.ult + proc.cicloBurst);
-		}
+		}*/
 	}
 
 	private void executaUmCiclo() {

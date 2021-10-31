@@ -28,21 +28,15 @@ public class PCB {
 	public int tempoBurst = 5;
 	public int estimativaBurst = tempoBurst;
 	public int ult = 0;
+	public boolean fimBurstOperacaoES = false;
+	public int contadorCiclos = 0; //Para Round Robin
 
 	public int calculaTamanhoBurst(int chute) {
 		int proximoChute;
+		if(cicloBurst > 0) ult = contadorBurst;
 		if(ult == 0)  proximoChute = (contadorBurst + chute) / 2;
 		else proximoChute = (ult + chute) / 2;
-		ult = contadorBurst;
 		return proximoChute;
 	}
-	/*
-	public int contadorCiclos = 0; //Para Round Robin
-	public int remainingTime; // Shortest Job First
-
-	public int retorno = 0; // tempo para terminar o processo
-	public int resposta = 0; // tempo para espera até executar a primeira execução
-	*/
-	// SHORTEST JOB FIRST ORDENAR LISTA DE PROCESSOS E PEGAR O PRIMEIRO PROCESSO
 
 }
