@@ -19,7 +19,7 @@ public class SeuSO extends SO {
 
     public static Listas listsAndQueues = new Listas();
     public boolean CPUexecuting = false;
-    int trocaContexto = 0;
+    static  int trocaContexto = 0;
     @Override
     // ATENÇÃO: cria o processo mas o mesmo
     // só estará "pronto" no próximo ciclo
@@ -365,6 +365,7 @@ public class SeuSO extends SO {
         listsAndQueues.getEsperando().clear();
         listsAndQueues.getTerminados().clear();
         listsAndQueues.getDispositivos().clear();
+        trocaContexto = 0;
         esc = e;
     }
 
