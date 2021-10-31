@@ -44,12 +44,14 @@ public class SeuSO extends SO {
                 listsAndQueues.addListaPronto(pcbProximo);
                 listsAndQueues.getPronto().sort(new SortIdProcesso());
                 trocaContexto += 1;
+                break;
             case ROUND_ROBIN_QUANTUM_5:
                 listsAndQueues.addListaPronto(pcbAtual);
                 pcbAtual.estado = PCB.Estado.PRONTO;
                 listsAndQueues.delListaPronto(pcbProximo);
                 pcbProximo.estado = PCB.Estado.EXECUTANDO;
                 trocaContexto += 1;
+                break;
         }
     }
 
@@ -118,11 +120,6 @@ public class SeuSO extends SO {
                 escalonadores();
                 PCB p = processos.get(i);
                 if (p.estado.equals(estado)) {
-                    System.out.print(trocaContexto+" "+estado+": ");
-                    for(PCB pr : listsAndQueues.getProcessosCPU()){
-                        System.out.print(pr.idProcesso+" ");
-                    }
-                    System.out.println();
                     // PROCESSO TERMINADO
                     if (p.operacao >= p.codigo.length) {
                         if (p.estado.equals(PCB.Estado.NOVO)) {
