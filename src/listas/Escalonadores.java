@@ -44,7 +44,7 @@ public class Escalonadores {
             for(PCB p : procsCPU) {
                 if(p.estado.equals(PCB.Estado.EXECUTANDO)) executando = p;
             }
-            contexto.trocaContexto(procsCPU.get(0), executando);
+            contexto.trocaContexto(executando, procsCPU.get(0));
         }
     }
 
@@ -53,7 +53,7 @@ public class Escalonadores {
         for(PCB p : processos) {
             if(p.estado.equals(PCB.Estado.EXECUTANDO)){
                 // CASO TERMINOU OS 5 CICLOS
-                if(p.contadorCiclos == 1) {
+                if(p.contadorCiclos == 4) {
                     if(p.operacao < p.codigo.length && !(p.codigo[p.operacao] instanceof OperacaoES)) {
                         if(listsAndQueues.getPronto().size() > 0){
                             so.trocaContexto(p,listsAndQueues.getPronto().get(0));

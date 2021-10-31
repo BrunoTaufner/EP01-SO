@@ -19,7 +19,7 @@ public class SeuSO extends SO {
 
     public static Listas listsAndQueues = new Listas();
     public boolean CPUexecuting = false;
-    static  int trocaContexto = 0;
+    static int trocaContexto = 0;
     @Override
     // ATENÇÃO: cria o processo mas o mesmo
     // só estará "pronto" no próximo ciclo
@@ -43,13 +43,14 @@ public class SeuSO extends SO {
                 pcbProximo.estado = PCB.Estado.PRONTO;
                 listsAndQueues.addListaPronto(pcbProximo);
                 listsAndQueues.getPronto().sort(new SortIdProcesso());
+                trocaContexto += 1;
             case ROUND_ROBIN_QUANTUM_5:
                 listsAndQueues.addListaPronto(pcbAtual);
                 pcbAtual.estado = PCB.Estado.PRONTO;
                 listsAndQueues.delListaPronto(pcbProximo);
                 pcbProximo.estado = PCB.Estado.EXECUTANDO;
+                trocaContexto += 1;
         }
-        trocaContexto += 1;
     }
 
     @Override
