@@ -4,6 +4,8 @@ import java.util.*;
 
 import listas.Dispositivos;
 import listas.Listas;
+import listas.SortBurst;
+import listas.SortIdProcesso;
 import operacoes.Carrega;
 import operacoes.Operacao;
 import operacoes.OperacaoES;
@@ -16,8 +18,8 @@ public class SeuSO extends SO {
     public static List<PCB> processos = new LinkedList<>();
 
     public static Listas listsAndQueues = new Listas();
-    public boolean CPUexecuting = false;
-    int trocaContexto = 0;
+    public static boolean CPUexecuting = false;
+    static int trocaContexto = 0;
     @Override
     // ATENÇÃO: cria o processo mas o mesmo
     // só estará "pronto" no próximo ciclo
@@ -32,8 +34,19 @@ public class SeuSO extends SO {
     }
 
     @Override
-    protected void trocaContexto(PCB pcbAtual, PCB pcbProximo) {
-
+    public void trocaContexto(PCB pcbAtual, PCB pcbProximo) {
+        System.out.println();
+        for(PCB p : listsAndQueues.getProcessosCPU()) {
+            System.out.print(p.idProcesso + " ");
+        }
+        System.out.println("<-");
+        listsAndQueues.getProcessosCPU().sort(new SortBurst());
+        pcbAtual.estado = PCB.Estado.EXECUTANDO;
+        listsAndQueues.delListaPronto(pcbAtual);
+        pcbProximo.estado = PCB.Estado.PRONTO;
+        listsAndQueues.addFilaPronto(pcbProximo);
+        listsAndQueues.getPronto().sort(new SortIdProcesso());
+        trocaContexto += 1;
     }
 
     @Override
@@ -73,6 +86,7 @@ public class SeuSO extends SO {
                         op = p.codigo[p.operacao];
                         p.operacao++;
                         p.contadorDePrograma++;
+                        p.estimativaBurst--;
                         if(p.cicloBurst == 0) p.contadorBurst++;
                         // SAI DA CPU
                         if(p.operacao >= p.codigo.length || p.codigo[p.operacao] instanceof OperacaoES) {
@@ -92,7 +106,7 @@ public class SeuSO extends SO {
         List<PCB.Estado> estados = criaEstados();
         for(PCB.Estado estado : estados) {
             for (int i = 0; i < processos.size(); i++) {
-                System.out.print(estado+": ");
+                //System.out.print(estado+": ");
                 escalonadores();
                 PCB p = processos.get(i);
                 if (p.estado.equals(estado)) {
@@ -100,8 +114,12 @@ public class SeuSO extends SO {
                     if (p.operacao >= p.codigo.length) {
                         if (p.estado.equals(PCB.Estado.NOVO)) {
                             listsAndQueues.delListaNovos(p);
-                        } else if (p.estado.equals(PCB.Estado.ESPERANDO)) {
+                        }
+                        else if (p.estado.equals(PCB.Estado.ESPERANDO)) {
                             listsAndQueues.delListaEsperando(p);
+                        }
+                        else if(p.estado.equals(PCB.Estado.EXECUTANDO)) {
+                            listsAndQueues.delListaProcessosCPU(p);
                         }
                         p.estado = PCB.Estado.TERMINADO;
                         listsAndQueues.addListaTerminados(p);
@@ -124,6 +142,7 @@ public class SeuSO extends SO {
                                 p.estado = PCB.Estado.EXECUTANDO;
                                 CPUexecuting = true;
                                 listsAndQueues.delListaPronto(p);
+                                if(!listsAndQueues.getProcessosCPU().contains(p)) listsAndQueues.addListaProcessosCPU(p);
                             }
                             // PRONTO PARA ESPERANDO
                             else if (p.codigo[p.operacao] instanceof OperacaoES) {
@@ -131,6 +150,7 @@ public class SeuSO extends SO {
                                 listsAndQueues.addListaEsperando(p);
                                 addListaDispositivos(p);
                                 listsAndQueues.delListaPronto(p);
+                                listsAndQueues.delListaProcessosCPU(p);
                             }
                         }
                         // PROCESSO EXECUTANDO
@@ -140,6 +160,7 @@ public class SeuSO extends SO {
                                 p.estado = PCB.Estado.ESPERANDO;
                                 listsAndQueues.addListaEsperando(p);
                                 addListaDispositivos(p);
+                                listsAndQueues.delListaProcessosCPU(p);
                             }
                         }
                         // PROCESSO ESPERANDO
@@ -148,12 +169,18 @@ public class SeuSO extends SO {
                             // ESPERANDO PARA EXECUTANDO
                             if (!(p.codigo[p.operacao] instanceof OperacaoES) && !CPUexecuting && listsAndQueues.getPronto().isEmpty()) {
                                 listsAndQueues.delListaEsperando(p);
+                                if(!listsAndQueues.getProcessosCPU().contains(p)) listsAndQueues.addListaProcessosCPU(p);
                                 p.estado = PCB.Estado.EXECUTANDO;
                                 CPUexecuting = true;
                                 // TEMPO BURST PARA SJF
-                                if (esc.equals(Escalonador.SHORTEST_JOB_FIRST)) {
-                                    p.contadorBurst = 0;
-                                    p.cicloBurst = 0;
+                                if (esc.equals(Escalonador.SHORTEST_JOB_FIRST) || esc.equals(Escalonador.SHORTEST_REMANING_TIME_FIRST) ) {
+                                    if(p.cicloBurst > 0) {
+                                        p.tempoBurst  = p.calculaTamanhoBurst(p.tempoBurst);
+                                        p.estimativaBurst = p.tempoBurst;
+                                        p.cicloBurst = 0;
+                                        p.contadorBurst = 0;
+                                    }
+                                    listsAndQueues.getPronto().sort(new SortBurst());
                                 }
                             }
                             // ESPERANDO PARA PRONTO
@@ -161,6 +188,7 @@ public class SeuSO extends SO {
                                 listsAndQueues.delListaEsperando(p);
                                 p.estado = PCB.Estado.PRONTO;
                                 listsAndQueues.addFilaPronto(p);
+                                if(!listsAndQueues.getProcessosCPU().contains(p)) listsAndQueues.addListaProcessosCPU(p);
                             }
                         }
                     }
@@ -194,14 +222,18 @@ public class SeuSO extends SO {
                 listas.Escalonadores.SJF(processos, listsAndQueues);
                 break;
             case SHORTEST_REMANING_TIME_FIRST:
+                listas.Escalonadores.SRTF(processos, listsAndQueues);
                 break;
             case ROUND_ROBIN_QUANTUM_5:
                 break;
         }
-        for(PCB p : listsAndQueues.getPronto()){
+        /*
+        for(PCB p : listsAndQueues.getProcessosCPU()){
             System.out.print(p.idProcesso+" ");
         }
         System.out.println();
+
+         */
     }
 
     private void addListaDispositivos(PCB p) {

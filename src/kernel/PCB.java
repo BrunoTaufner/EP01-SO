@@ -7,9 +7,9 @@ public class PCB {
 	NOVO = processo novo, porém não roda ainda
 	PRONTO = próximo ciclo de programa (depois do NOVO) <<< AQUI ESCOLHEMOS O ESCALONADOR
 	 */
+	public enum Estado {NOVO, PRONTO, EXECUTANDO, ESPERANDO, TERMINADO}
 
 
-	public enum Estado {NOVO, PRONTO, EXECUTANDO, ESPERANDO, TERMINADO;}
 	public int idProcesso; // primeiro processo criado deve ter id = 0
 	public Estado estado = Estado.NOVO;
 	public Operacao[] codigo;
@@ -26,10 +26,14 @@ public class PCB {
 	public int contadorBurst = 0;
 	public int cicloBurst = 0;
 	public int tempoBurst = 5;
-	public boolean executouBurstInicial = false;
+	public int estimativaBurst = tempoBurst;
+	public int ult = 0;
 
 	public int calculaTamanhoBurst(int chute) {
-		int proximoChute = (contadorBurst + chute) / 2;
+		int proximoChute;
+		if(ult == 0)  proximoChute = (contadorBurst + chute) / 2;
+		else proximoChute = (ult + chute) / 2;
+		ult = contadorBurst;
 		return proximoChute;
 	}
 	/*

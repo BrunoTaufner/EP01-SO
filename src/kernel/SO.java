@@ -86,7 +86,7 @@ public abstract class SO {
 		}
 		System.out.println();
 		for(PCB proc : SeuSO.listsAndQueues.getTarefas()) {
-			System.out.println("id: " + proc.idProcesso + "\tbursts: " + proc.contadorBurst + "\t tamBursts: " + proc.tempoBurst);
+		System.out.println("id: " + proc.idProcesso + "\ti: " + proc.operacao + "\test: " + proc.estimativaBurst + "\t tamB: " + proc.tempoBurst + "\tbursts: " + proc.contadorBurst + proc.ult + proc.cicloBurst);
 		}
 	}
 
