@@ -8,6 +8,8 @@ import java.util.List;
 
 public class Escalonadores {
 
+    SeuSO sistema = new SeuSO();
+
     public static void SJF(List<PCB> processos, Listas listsAndQueues) {
         for(PCB p : processos) {
             if(p.cicloBurst > 0) {
@@ -20,7 +22,7 @@ public class Escalonadores {
         listsAndQueues.getPronto().sort(new SortBurst());
     }
 
-    public static void SRTF(List<PCB> processos, Listas listsAndQueues) {
+    public static void SRTF(List<PCB> processos, Listas listsAndQueues, boolean CPUexecuting) {
 
         for(PCB p : processos) {
             if(p.fimBurstOperacaoES) {
@@ -29,7 +31,6 @@ public class Escalonadores {
                 p.contadorBurst = 0;
                 p.cicloBurst = 0;
                 p.fimBurstOperacaoES = false;
-                System.out.println("\n->"+p.idProcesso+"<-"+p.tempoBurst+" "+p.operacao);
             }
         }
         List<PCB> procsCPU = listsAndQueues.getProcessosCPU();
@@ -38,7 +39,7 @@ public class Escalonadores {
         listsAndQueues.getPronto().sort(new SortBurst());
 
         SeuSO contexto = new SeuSO();
-        if(!procsCPU.isEmpty() && procsCPU.get(0).estado.equals(PCB.Estado.PRONTO) && SeuSO.CPUexecuting) {
+        if(!procsCPU.isEmpty() && procsCPU.get(0).estado.equals(PCB.Estado.PRONTO) && CPUexecuting) {
             PCB executando = null;
             for(PCB p : procsCPU) {
                 if(p.estado.equals(PCB.Estado.EXECUTANDO)) executando = p;

@@ -14,18 +14,20 @@ public class Listas implements Comparable<PCB>{
     List<PCB> pronto = new LinkedList<>(); //FILA COM TODOS OS PROCESSOS QUE ESTÃO PRONTOS
     List<PCB> novos = new LinkedList<>(); //FILA COM TODOS OS PROCESSOS QUE ESTÃO NOVOS
     List<PCB> terminados = new LinkedList<>(); //FILA DE TODOS OS PROCESSOS TERMINADOS
-
     List<PCB> processosCPU = new LinkedList<>(); // LISTAS COM TODOS OS PROCESSOS ESPERANDO PELA CPU OU EXECUTANDO NA CPU
-
     List<PCB> esperando = new LinkedList<>();
-    HashMap<Integer,List<Dispositivos>> dispositivos = new HashMap<>(); //FILA COM TODOS OS PROCESSOS ESPERANDO POR UM DISPOSITIVO DE ENTRADA E SAÍDA
 
+    HashMap<Integer,List<Dispositivos>> dispositivos = new HashMap<>(); //FILA COM TODOS OS PROCESSOS ESPERANDO POR UM DISPOSITIVO DE ENTRADA E SAÍDA
     public Listas(){
 
     }
 
     public List<PCB> getEsperando() {
         return esperando;
+    }
+
+    public List<PCB> getNovos() {
+        return novos;
     }
 
     public void addListaProcessosCPU(PCB p) {

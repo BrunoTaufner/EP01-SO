@@ -15,11 +15,11 @@ public class SeuSO extends SO {
 
     public static Escalonador esc;
 
-    public static List<PCB> processos = new LinkedList<>();
+    public List<PCB> processos = new LinkedList<>();
 
     public static Listas listsAndQueues = new Listas();
-    public static boolean CPUexecuting = false;
-    static int trocaContexto = 0;
+    public boolean CPUexecuting = false;
+    int trocaContexto = 0;
     @Override
     // ATENÇÃO: cria o processo mas o mesmo
     // só estará "pronto" no próximo ciclo
@@ -35,7 +35,7 @@ public class SeuSO extends SO {
 
     @Override
     public void trocaContexto(PCB pcbAtual, PCB pcbProximo) {
-        switch (this.esc) {
+        switch (esc) {
             case SHORTEST_REMANING_TIME_FIRST:
                 listsAndQueues.getProcessosCPU().sort(new SortBurst());
                 pcbAtual.estado = PCB.Estado.EXECUTANDO;
@@ -212,14 +212,14 @@ public class SeuSO extends SO {
     }
 
     private void escalonadores() {
-        carregaRegistradoresVirtuais(getProcessador()); // vai para troca de contexto
+        carregaRegistradoresVirtuais(getProcessador());
         if(processos.isEmpty()) return;
         switch (esc) {
             case SHORTEST_JOB_FIRST:
                 listas.Escalonadores.SJF(processos, listsAndQueues);
                 break;
             case SHORTEST_REMANING_TIME_FIRST:
-                listas.Escalonadores.SRTF(processos, listsAndQueues);
+                listas.Escalonadores.SRTF(processos, listsAndQueues, CPUexecuting);
                 break;
             case ROUND_ROBIN_QUANTUM_5:
                 listas.Escalonadores.RRQ5(processos, listsAndQueues);
@@ -320,14 +320,23 @@ public class SeuSO extends SO {
             x += proc.espera;
         }
         if(listsAndQueues.getTarefas().size() == 0) return 0;
-        return x/listsAndQueues.getTarefas().size();
+        int size = listsAndQueues.getTarefas().size();
+        if(processos.isEmpty()) {
+            listsAndQueues.getTarefas().clear();
+            listsAndQueues.getDispositivos().clear();
+            listsAndQueues.getTerminados().clear();
+            listsAndQueues.getEsperando().clear();
+            listsAndQueues.getPronto().clear();
+            listsAndQueues.getNovos().clear();
+            listsAndQueues.getProcessosCPU().clear();
+        }
+        return x/size;
     }
 
     @Override
     protected int tempoRespostaMedio() {
         int soma = 0;
         for (PCB p : listsAndQueues.getTarefas()) {
-            //System.out.println("id: "+ p.idProcesso +"\t resposta: "+ p.resposta);
             soma += p.resposta;
         }
         return soma/listsAndQueues.getTarefas().size();
@@ -337,7 +346,6 @@ public class SeuSO extends SO {
     protected int tempoRetornoMedio() {
         int soma = 0;
         for (PCB p : listsAndQueues.getTarefas()) {
-            //System.out.println("id: "+ p.idProcesso +"\t retorno: "+ p.retorno);
             soma += p.retorno;
         }
         return soma/listsAndQueues.getTarefas().size();
@@ -350,7 +358,14 @@ public class SeuSO extends SO {
 
     @Override
     public void defineEscalonador(Escalonador e) {
-        this.esc = e;
+        listsAndQueues.getProcessosCPU().clear();
+        listsAndQueues.getNovos().clear();
+        listsAndQueues.getPronto().clear();
+        listsAndQueues.getTarefas().clear();
+        listsAndQueues.getEsperando().clear();
+        listsAndQueues.getTerminados().clear();
+        listsAndQueues.getDispositivos().clear();
+        esc = e;
     }
 
 }
