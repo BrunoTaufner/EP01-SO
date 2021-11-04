@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Scanner;
 
 import listas.Escalonadores;
+import listas.Listas;
 import listas.SortBurst;
 import listas.SortIdProcesso;
 import operacoes.Carrega;
@@ -25,7 +26,8 @@ public abstract class SO {
 		FIRST_COME_FIRST_SERVED, // não preemptivo
 		SHORTEST_JOB_FIRST, // não preemptivo (média exponencial comecando em 5)
 		SHORTEST_REMANING_TIME_FIRST, // preemptivo (média exponencial comecando em 5)
-		ROUND_ROBIN_QUANTUM_5 // preemptivo
+		ROUND_ROBIN_QUANTUM_5, // preemptivo
+		SHORTEST_JOB_FIRST_BOLA_DE_CRISTAL
 	}
 	public void simula() {
 		while (!novosProcessos.isEmpty() || temTarefasPendentes()) {
@@ -87,6 +89,7 @@ public abstract class SO {
 		for (Integer id : idProcessosTerminados()) {
 			System.out.print(id + " ");
 		}
+
 	}
 
 	private void executaUmCiclo() {

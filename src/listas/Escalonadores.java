@@ -62,4 +62,19 @@ public class Escalonadores {
             }
         }
     }
+
+    public static void SJFBolaDeCristal(List<PCB> processos, Listas listsAndQueues) {
+        for(PCB p : processos) {
+            if(p.tamanhoProcesso == 0) {
+                p.bolaDeCristal();
+            }
+            if(p.cicloBurst > 0) {
+                p.tempoBurst  = p.calculaTamanhoBurst(p.tempoBurst);
+                p.estimativaBurst = p.tempoBurst;
+                p.cicloBurst = 0;
+                p.contadorBurst = 0;
+            }
+        }
+        listsAndQueues.getPronto().sort(new SortBolaCristal());
+    }
 }

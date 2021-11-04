@@ -1,5 +1,6 @@
 package kernel;
 import operacoes.Operacao;
+import operacoes.OperacaoES;
 
 public class PCB {
 
@@ -30,6 +31,7 @@ public class PCB {
 	public int ult = 0;
 	public boolean fimBurstOperacaoES = false;
 	public int contadorCiclos = 0; //Para Round Robin
+	public int tamanhoProcesso = 0;
 
 	public int calculaTamanhoBurst(int chute) {
 		int proximoChute;
@@ -37,6 +39,17 @@ public class PCB {
 		if(ult == 0)  proximoChute = (contadorBurst + chute) / 2;
 		else proximoChute = (ult + chute) / 2;
 		return proximoChute;
+	}
+
+	public void bolaDeCristal () {
+		for(Operacao cod : codigo) {
+			if(cod instanceof OperacaoES) {
+				tamanhoProcesso += ((OperacaoES) cod).ciclos;
+			}
+			else {
+				tamanhoProcesso++;
+			}
+		}
 	}
 
 }

@@ -18,9 +18,6 @@ public class Listas implements Comparable<PCB>{
     List<PCB> esperando = new LinkedList<>();
 
     HashMap<Integer,List<Dispositivos>> dispositivos = new HashMap<>(); //FILA COM TODOS OS PROCESSOS ESPERANDO POR UM DISPOSITIVO DE ENTRADA E SAÍDA
-    public Listas(){
-
-    }
 
     public List<PCB> getEsperando() {
         return esperando;

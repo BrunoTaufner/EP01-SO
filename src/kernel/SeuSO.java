@@ -227,6 +227,8 @@ public class SeuSO extends SO {
             case ROUND_ROBIN_QUANTUM_5:
                 listas.Escalonadores.RRQ5(processos, listsAndQueues);
                 break;
+            case SHORTEST_JOB_FIRST_BOLA_DE_CRISTAL:
+                listas.Escalonadores.SJFBolaDeCristal(processos, listsAndQueues);
         }
 
     }
