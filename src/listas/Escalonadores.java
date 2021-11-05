@@ -2,7 +2,9 @@ package listas;
 
 import kernel.PCB;
 import kernel.SeuSO;
+import operacoes.Carrega;
 import operacoes.OperacaoES;
+import operacoes.Soma;
 
 import java.util.List;
 
@@ -65,15 +67,13 @@ public class Escalonadores {
 
     public static void SJFBolaDeCristal(List<PCB> processos, Listas listsAndQueues) {
         for(PCB p : processos) {
-            if(p.tamanhoProcesso == 0) {
-                p.bolaDeCristal();
+            if(p.operacao < p.codigo.length
+                    && (p.codigo[p.operacao] instanceof Carrega || p.codigo[p.operacao] instanceof Soma)) {
+                p.opCouS = true;
             }
-            if(p.cicloBurst > 0) {
-                p.tempoBurst  = p.calculaTamanhoBurst(p.tempoBurst);
-                p.estimativaBurst = p.tempoBurst;
-                p.cicloBurst = 0;
-                p.contadorBurst = 0;
-            }
+        }
+        for(PCB p : processos) {
+            if(p.opCouS && !p.entrou) p.bolaDeCristal();
         }
         listsAndQueues.getPronto().sort(new SortBolaCristal());
     }

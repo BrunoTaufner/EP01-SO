@@ -9,10 +9,10 @@ import kernel.SeuSO;
 public class Main {
 	public static void main(String[] args) throws FileNotFoundException {
 		List<Escalonador> escalonadores = new LinkedList<>();	
-		escalonadores.add(SO.Escalonador.FIRST_COME_FIRST_SERVED);
-		escalonadores.add(SO.Escalonador.SHORTEST_JOB_FIRST);
-		escalonadores.add(SO.Escalonador.SHORTEST_REMANING_TIME_FIRST);
-		escalonadores.add(SO.Escalonador.ROUND_ROBIN_QUANTUM_5);
+//		escalonadores.add(SO.Escalonador.FIRST_COME_FIRST_SERVED);
+//		escalonadores.add(SO.Escalonador.SHORTEST_JOB_FIRST);
+//		escalonadores.add(SO.Escalonador.SHORTEST_REMANING_TIME_FIRST);
+//		escalonadores.add(SO.Escalonador.ROUND_ROBIN_QUANTUM_5);
 		escalonadores.add(SO.Escalonador.SHORTEST_JOB_FIRST_BOLA_DE_CRISTAL);
 		String arq = "entradas/teste16.txt";
 		for(Escalonador esc : escalonadores) {

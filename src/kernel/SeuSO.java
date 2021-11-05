@@ -69,11 +69,13 @@ public class SeuSO extends SO {
                 && opES.processo.estado.equals(PCB.Estado.ESPERANDO)) {
             opES.processo.contadorDePrograma++;
             op = opES.op;
+            opES.processo.tamanhoProcesso--;
             if(opES.op.ciclos == 1) {
                 opES.processo.ESexecuting = false;
                 opES.processo.operacao++;
                 if(opES.processo.operacao < opES.processo.codigo.length && !(opES.processo.codigo[opES.processo.operacao] instanceof  OperacaoES) && opES.processo.cicloBurst > 0) {
                     opES.processo.fimBurstOperacaoES = true;
+                    opES.processo.entrou = false;
                 }
                 disp.remove(opES);
             }
@@ -97,6 +99,7 @@ public class SeuSO extends SO {
                         p.contadorDePrograma++;
                         p.estimativaBurst--;
                         p.contadorCiclos++;
+                        p.tamanhoProcesso--;
                         if(p.cicloBurst == 0) p.contadorBurst++;
                         // SAI DA CPU
                         if(p.operacao >= p.codigo.length || p.codigo[p.operacao] instanceof OperacaoES) {
