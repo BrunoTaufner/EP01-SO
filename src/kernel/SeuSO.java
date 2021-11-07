@@ -272,12 +272,12 @@ public class SeuSO extends SO {
     }
 
     @Override
-    protected List<Integer>idProcessoNovo() {
+    protected Integer idProcessoNovo() {
         Queue<PCB> tarefas = listsAndQueues.getTarefas();
-        List<Integer> id_ProcessosNovo = new LinkedList<>();
+        Integer id_ProcessosNovo = null;
         for (PCB processo : tarefas) {
             if (processo.estado.equals(PCB.Estado.NOVO)) {
-                id_ProcessosNovo.add(processo.idProcesso);
+                id_ProcessosNovo = processo.idProcesso;
             }
         }
         return id_ProcessosNovo;
@@ -290,17 +290,17 @@ public class SeuSO extends SO {
         for (PCB processo : pronto) {
                 id_ProcessosProntos.add(processo.idProcesso);
         }
-//        Collections.sort(id_ProcessosProntos);
+        Collections.sort(id_ProcessosProntos);
         return id_ProcessosProntos;
     }
 
     @Override
-    protected List<Integer> idProcessoExecutando() {
+    protected Integer idProcessoExecutando() {
         Queue<PCB> tarefas = listsAndQueues.getTarefas();
-        List<Integer> id_ProcessosExecutando = new LinkedList<>();
+        Integer id_ProcessosExecutando = null;
         for (PCB processo : tarefas) {
             if (processo.estado.equals(PCB.Estado.EXECUTANDO)) {
-                id_ProcessosExecutando.add(processo.idProcesso);
+                id_ProcessosExecutando = processo.idProcesso;
             }
         }
         return id_ProcessosExecutando;

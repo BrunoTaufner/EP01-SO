@@ -5,10 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 
-import listas.Escalonadores;
-import listas.Listas;
-import listas.SortBurst;
-import listas.SortIdProcesso;
 import operacoes.Carrega;
 import operacoes.Operacao;
 import operacoes.OperacaoES;
@@ -22,6 +18,7 @@ public abstract class SO {
 	private int contadorCiclos = 0;
 
 
+
 	public enum Escalonador {
 		FIRST_COME_FIRST_SERVED, // não preemptivo
 		SHORTEST_JOB_FIRST, // não preemptivo (média exponencial comecando em 5)
@@ -29,6 +26,15 @@ public abstract class SO {
 		ROUND_ROBIN_QUANTUM_5, // preemptivo
 		SHORTEST_REMANING_TIME_FIRST_BOLA_DE_CRISTAL
 	}
+
+	public Processador getProcessador() {
+		return processador;
+	}
+
+	public int getContadorCiclos() {
+		return contadorCiclos;
+	}
+
 	public void simula() {
 		while (!novosProcessos.isEmpty() || temTarefasPendentes()) {
 			Operacao[] codigo = novosProcessos.get(contadorCiclos);
@@ -61,40 +67,29 @@ public abstract class SO {
 		System.out.println();
 		System.out.println("Ciclo: " + contadorCiclos);
 
-		System.out.print("Processo novo: ");
-		for (Integer id : idProcessoNovo()) {
-			System.out.print(id + " ");
-		}
+		if (idProcessoNovo() != null)
+			System.out.println("Processo novo: " + idProcessoNovo());
 
-		System.out.print("\nProcesso executando: ");
+		if (idProcessoExecutando() != null)
+			System.out.println("Processo executando: " + idProcessoExecutando());
 
-		for (Integer id : idProcessoExecutando()) {
-			System.out.print(id + " ");
-		}
-
-		System.out.print("\nProcessos prontos: ");
+		System.out.print("Processos prontos: ");
 
 		for (Integer id : idProcessosProntos()) {
 			System.out.print(id + " ");
 		}
 
-		System.out.print("\nProcessos esperando: ");
+		System.out.print("Processos esperando: ");
 
 		for (Integer id : idProcessosEsperando()) {
 			System.out.print(id + " ");
 		}
 
-		System.out.print("\nProcessos terminados: ");
+		System.out.print("Processos terminados: ");
 
 		for (Integer id : idProcessosTerminados()) {
 			System.out.print(id + " ");
 		}
-
-		System.out.println();
-		for(PCB p : SeuSO.listsAndQueues.getTarefas()) {
-			System.out.println("id"+p.idProcesso+"->"+p.tamanhoProcesso+"->"+p.executed);
-		}
-
 	}
 
 	private void executaUmCiclo() {
@@ -110,14 +105,12 @@ public abstract class SO {
 	}
 
 	private void executaUmCicloES() {
-
 		for (int i = 0; i < 5; i++) {
 			OperacaoES op = proximaOperacaoES(i);
 
 			if (op != null && op.ciclos > 0)
 				op.ciclos--;
 		}
-
 	}
 
 	public void leArquivoEntrada(String arq) throws FileNotFoundException {
@@ -132,11 +125,11 @@ public abstract class SO {
 			for (int j = 0; j < nOperacoes; j++) {
 				int codOp = in.nextInt();
 
-				if (codOp == 1) { //Código do dispositivo e número de ciclos
+				if (codOp == 1) {
 					codigo[j] = new OperacaoES(in.nextInt(), in.nextInt());
-				} else if (codOp == 2) { //Carrega valor em um certo registrador
+				} else if (codOp == 2) {
 					codigo[j] = new Carrega(in.nextInt(), in.nextInt());
-				} else if (codOp == 3) { //Operação de soma
+				} else if (codOp == 3) {
 					codigo[j] = new Soma(in.nextInt(), in.nextInt(), in.nextInt());
 				} else {
 					throw new RuntimeException("Código de operacão inválido");
@@ -149,14 +142,6 @@ public abstract class SO {
 
 			novosProcessos.put(instanteChegada, codigo);
 		}
-	}
-
-	public int getContadorCiclos(){
-		return contadorCiclos;
-	}
-
-	public Processador getProcessador() {
-		return processador;
 	}
 
 	protected abstract void criaProcesso(Operacao[] codigo);
@@ -172,10 +157,11 @@ public abstract class SO {
 
 	protected abstract boolean temTarefasPendentes();
 
-	protected abstract List<Integer> idProcessoNovo();
+	protected abstract Integer idProcessoNovo();
 
 	protected abstract List<Integer> idProcessosProntos();
-	protected abstract List<Integer> idProcessoExecutando();
+
+	protected abstract Integer idProcessoExecutando();
 
 	protected abstract List<Integer> idProcessosEsperando();
 
@@ -186,9 +172,8 @@ public abstract class SO {
 	protected abstract int tempoRespostaMedio();
 
 	protected abstract int tempoRetornoMedio();
-	
-	protected abstract int trocasContexto();
-	
-	public abstract void defineEscalonador(Escalonador e);
 
+	protected abstract int trocasContexto();
+
+	public abstract void defineEscalonador(Escalonador e);
 }
