@@ -36,6 +36,7 @@ public class Escalonadores {
         List<PCB> procsCPU = listsAndQueues.getProcessosCPU();
         procsCPU.sort(new SortBurst());
 
+        listsAndQueues.getProcessosCPU().sort(new SortBurst());
         listsAndQueues.getPronto().sort(new SortBurst());
 
         SeuSO contexto = new SeuSO();
@@ -65,7 +66,7 @@ public class Escalonadores {
         }
     }
 
-    public static void SJFBolaDeCristal(List<PCB> processos, Listas listsAndQueues) {
+    public static void SRTFBolaDeCristal(List<PCB> processos, Listas listsAndQueues, boolean CPUexecuting) {
         for(PCB p : processos) {
             if(p.operacao < p.codigo.length
                     && (p.codigo[p.operacao] instanceof Carrega || p.codigo[p.operacao] instanceof Soma)) {
@@ -75,6 +76,23 @@ public class Escalonadores {
         for(PCB p : processos) {
             if(p.opCouS && !p.entrou) p.bolaDeCristal();
         }
+
+        List<PCB> procsCPU =  listsAndQueues.getProcessosCPU();
+        listsAndQueues.getProcessosCPU().sort(new SortBolaCristal());
         listsAndQueues.getPronto().sort(new SortBolaCristal());
+
+        SeuSO contexto = new SeuSO();
+//        System.out.println("\tprocsCPU:");
+//        for(PCB p : procsCPU) {
+//            System.out.println(p.idProcesso+"" +p.estado +" ");
+//        }
+//        System.out.println();
+        if(!procsCPU.isEmpty() && procsCPU.get(0).estado.equals(PCB.Estado.PRONTO) && CPUexecuting) {
+            PCB executando = null;
+            for(PCB p : procsCPU) {
+                if(p.estado.equals(PCB.Estado.EXECUTANDO)) executando = p;
+            }
+            contexto.trocaContexto(procsCPU.get(0), executando);
+        }
     }
 }

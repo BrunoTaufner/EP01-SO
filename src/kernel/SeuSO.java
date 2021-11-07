@@ -2,10 +2,7 @@ package kernel;
 
 import java.util.*;
 
-import listas.Dispositivos;
-import listas.Listas;
-import listas.SortBurst;
-import listas.SortIdProcesso;
+import listas.*;
 import operacoes.Carrega;
 import operacoes.Operacao;
 import operacoes.OperacaoES;
@@ -45,6 +42,15 @@ public class SeuSO extends SO {
                 listsAndQueues.getPronto().sort(new SortIdProcesso());
                 trocaContexto += 1;
                 break;
+            case SHORTEST_REMANING_TIME_FIRST_BOLA_DE_CRISTAL:
+                listsAndQueues.getProcessosCPU().sort(new SortBolaCristal());
+                pcbAtual.estado = PCB.Estado.EXECUTANDO;
+                listsAndQueues.delListaPronto(pcbAtual);
+                pcbProximo.estado = PCB.Estado.PRONTO;
+                listsAndQueues.addListaPronto(pcbProximo);
+                listsAndQueues.getPronto().sort(new SortIdProcesso());
+                trocaContexto += 1;
+                break;
             case ROUND_ROBIN_QUANTUM_5:
                 listsAndQueues.addListaPronto(pcbAtual);
                 pcbAtual.estado = PCB.Estado.PRONTO;
@@ -69,7 +75,6 @@ public class SeuSO extends SO {
                 && opES.processo.estado.equals(PCB.Estado.ESPERANDO)) {
             opES.processo.contadorDePrograma++;
             op = opES.op;
-            opES.processo.tamanhoProcesso--;
             if(opES.op.ciclos == 1) {
                 opES.processo.ESexecuting = false;
                 opES.processo.operacao++;
@@ -155,6 +160,7 @@ public class SeuSO extends SO {
                                 CPUexecuting = true;
                                 listsAndQueues.delListaPronto(p);
                                 if(!listsAndQueues.getProcessosCPU().contains(p)) listsAndQueues.addListaProcessosCPU(p);
+                                if(p.executed) trocaContexto++;
                             }
                             // PRONTO PARA ESPERANDO
                             else if (p.codigo[p.operacao] instanceof OperacaoES) {
@@ -174,6 +180,7 @@ public class SeuSO extends SO {
                                 addListaDispositivos(p);
                                 listsAndQueues.delListaProcessosCPU(p);
                                 p.contadorCiclos = 0;
+                                if(p.executed) trocaContexto++;
                             }
                         }
                         // PROCESSO ESPERANDO
@@ -185,6 +192,7 @@ public class SeuSO extends SO {
                                 if(!listsAndQueues.getProcessosCPU().contains(p)) listsAndQueues.addListaProcessosCPU(p);
                                 p.estado = PCB.Estado.EXECUTANDO;
                                 CPUexecuting = true;
+                                if(p.executed) trocaContexto++;
                             }
                             // ESPERANDO PARA PRONTO
                             else if (!(p.codigo[p.operacao] instanceof OperacaoES)) {
@@ -230,8 +238,8 @@ public class SeuSO extends SO {
             case ROUND_ROBIN_QUANTUM_5:
                 listas.Escalonadores.RRQ5(processos, listsAndQueues);
                 break;
-            case SHORTEST_JOB_FIRST_BOLA_DE_CRISTAL:
-                listas.Escalonadores.SJFBolaDeCristal(processos, listsAndQueues);
+            case SHORTEST_REMANING_TIME_FIRST_BOLA_DE_CRISTAL:
+                listas.Escalonadores.SRTFBolaDeCristal(processos, listsAndQueues, CPUexecuting);
         }
 
     }
