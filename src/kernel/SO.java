@@ -27,7 +27,7 @@ public abstract class SO {
 		SHORTEST_JOB_FIRST, // não preemptivo (média exponencial comecando em 5)
 		SHORTEST_REMANING_TIME_FIRST, // preemptivo (média exponencial comecando em 5)
 		ROUND_ROBIN_QUANTUM_5, // preemptivo
-		SHORTEST_JOB_FIRST_BOLA_DE_CRISTAL
+		SHORTEST_REMANING_TIME_FIRST_BOLA_DE_CRISTAL
 	}
 	public void simula() {
 		while (!novosProcessos.isEmpty() || temTarefasPendentes()) {
